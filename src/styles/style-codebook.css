@@ -1,0 +1,109 @@
+#page-codebook {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+    height: 100%;
+}
+p {
+    margin:var(--page-margin);
+}
+.c-horiz-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--page-margin);
+}
+.c-header {
+    text-align: center;
+}
+.c-column {
+    box-sizing: border-box;
+    padding: var(--page-margin);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.c-button {
+    padding: 0.5em;
+    background-color: var(--color-accent);
+    border-radius: var(--round-amt);
+    font-size: 1em;
+    width: 7em;
+    height: 2em;
+    border: none;
+    cursor: pointer;
+}
+#c-var-info {
+    width: 40%;
+}
+#c-var-manage {
+    width: 40%;
+}
+.c-manage-box {
+    padding: var(--page-margin);
+    background-color: var(--color-background);
+    border-radius: var(--round-amt);
+    border-top: 3px solid var(--color-accent);
+    overflow-y: scroll;
+    width: 100%;
+}
+#c-conv-table {
+    height: 60%;
+}
+#c-var-list {
+    height: 60%;
+}
+.c-input {
+    padding: 0.5em;
+    background-color: var(--color-background);
+    border-radius: var(--round-amt);
+    border: none;
+    outline: none;
+    font-size: 1em;
+    border-bottom: 3px solid var(--color-accent);
+    height: 3em;
+    width: 10em;
+    text-align: center;
+    box-sizing: border-box;
+    transition-duration: var(--global-transition-duration);
+}
+.c-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    background-color: var(--color-accent);
+    padding: 0.5em;
+    padding-inline: 1em;
+    border-radius: var(--round-amt);
+    margin-top: 1em;
+    transition-duration: var(--global-transition-duration);
+    cursor: pointer;
+}
+.c-input:focus {
+    border-bottom: 3px solid var(--color-dark);
+}
+.c-selected {
+    background-color: var(--color-dark);
+    color: white;
+}
+#c-var-cover {
+    left: 52.5%;
+    width: 40%;
+    height: 100%;
+    top: 0%;
+    background-color: var(--no-access-setting-color);
+}
+#c-cover-text {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+#c-conv-buttons {
+    margin-top: var(--page-margin);
+    width: 80%;
+}

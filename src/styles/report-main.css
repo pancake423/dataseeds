@@ -1,0 +1,63 @@
+:root {
+    --page-width: 1300px;
+    --page-margin: 1em;
+    --page-color: white;
+    --background-color: #f5f0f0;
+    --font: "Verdana";
+    --section-title-size: 2em;
+    --graph-title-size: 1.25em;
+    --text-size: 1em;
+    --text-color: black;
+}
+body {
+    margin: var(--page-margin);
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    background-color: var(--background-color);
+    font-family: var(--font);
+    color: var(--text-color);
+}
+p {
+    font-size: var(--text-size);
+    margin: var(--page-margin);
+}
+h1 {
+    font-size: var(--section-title-size);
+    margin: var(--page-margin);
+    text-align: center;
+}
+h2 {
+    font-size: var(--graph-title-size);
+    margin: var(--page-margin);
+    text-align: center;
+}
+#page-body {
+    width: var(--page-width);
+    padding: var(--page-margin);
+    box-sizing: border-box;
+    background-color: var(--page-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+.header-div {
+    width: 100%;
+    page-break-inside: avoid;
+}
+.break-line {
+    width: 100%;
+    height: 8px;
+    color: var(--text-color);
+}
+.graph-normal {
+    width: 300px;
+}
+.graph-wide {
+    width: 600px;
+}
+.graph-container {
+    box-sizing: border-box;
+}

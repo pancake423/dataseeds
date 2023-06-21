@@ -1,0 +1,97 @@
+:root {
+    --d-column-width: 33vw;
+}
+#page-data {
+    display: flex;
+    justify-content: center;
+}
+#d-security-note {
+    width: calc(var(--d-column-width) / 2);
+    background-color: var(--color-green);
+    padding: 0.5em;
+    border-radius: var(--round-amt);
+}
+#d-drop-target {
+    width: calc(var(--d-column-width) / 3); 
+    height: calc(var(--d-column-width) / 3); 
+    border: 3px dashed black;
+    border-radius: var(--round-amt);
+}
+#d-upload-button {
+    padding: 0.5em;
+    background-color: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--round-amt);
+    transition-duration: var(--global-transition-duration);
+}
+#d-upload-button:hover {
+    background-color: #555;
+}
+#d-file-list {
+    overflow-y: scroll;
+    height: 60vh;
+    border-radius: var(--round-amt);
+    width: calc(var(--d-column-width) / 1.5);
+    background-color: var(--color-background);
+    border-top: 3px solid var(--color-accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#d-icon-upload {
+    width: 2em;
+    height: auto;
+    margin-left: 50%;
+    margin-top:50%;
+    transform: translate(-50%, -50%);
+}
+.d-icon {
+    width: 1em;
+    height: auto;
+}
+.d-container {
+    height: 100%;
+    width: calc(var(--d-column-width) - 2em);
+    padding-left: 1em;
+    padding-right: 1em;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.d-header {
+    text-align: center;
+    user-select: none;
+}
+.d-spacer {
+    height: 2em;
+}
+.d-warning {
+    padding: 0.5em;
+    background-color: lightcoral;
+    border-radius: var(--round-amt);
+    margin-top: 1em;
+    opacity: 0;
+    transition-duration: var(--global-transition-duration);
+}
+.d-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: calc(var(--d-column-width) / 2);
+    background-color: var(--color-accent);
+    padding: 0.5em;
+    padding-inline: 1em;
+    border-radius: var(--round-amt);
+    margin-top: 1em;
+}
+.d-mismatch-button {
+    width: calc(100% - var(--page-margin) * 2);
+    padding: 0.5em;
+    background-color: var(--color-background);
+    border-radius: var(--round-amt);
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+}
