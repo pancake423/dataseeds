@@ -18,3 +18,12 @@ create a report (section titles and graphs, graph customization)
 create custom graphs (including graphs of two variables)
 
 upload, download, and generate configuration files that store information about reports.
+
+#
+Dependencies:
+
+PapaParse (for parsing CSV files to arrays)
+
+Plotly.js (for displaying graphical data)
+
+Flaticon (UI icons)
