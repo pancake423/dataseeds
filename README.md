@@ -27,3 +27,8 @@ PapaParse (for parsing CSV files to arrays)
 Plotly.js (for displaying graphical data)
 
 Flaticon (UI icons)
+
+Modern browser supporting new FilePicker methods (at the time of writing: Chrome, Edge, or Opera)
+Other browser users (Safari, Firefox) will be mildy annoyed by a disfunctional 'add files' button and being forced to drag and drop files.
+
+If you still use IE, bless your heart, but I am not even pretending to support it.
