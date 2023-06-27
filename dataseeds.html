@@ -12,6 +12,8 @@
     <link href="src/styles/style-codebook.css" rel="stylesheet"/>
     <link href="src/styles/style-reports.css" rel="stylesheet"/>
     <link href="src/styles/style-main.css" rel="stylesheet"/>
+    <link rel="icon" type="image/x-icon" href="src/assets/coffee-beans.svg">
+    <title>dataseeds</title>
 </head>
 <body>
     <div id="tab-bar">
@@ -36,7 +38,7 @@
                     <p><button id="d-upload-button" onclick = "filePickerButtonCSV()">Add files</button> or drag and drop below:</p>
                     <div class="d-spacer"></div>
                     <div id="d-drop-target" ondrop ="dropHandler(event)" ondragover="dragOverHandler(event)"><img src="src/assets/upload.svg" id="d-icon-upload" /></div>
-                    <div class="d-warning"><p>Auto Report Generator only supports CSV files.</p></div>
+                    <div class="d-warning"><p>dataseeds only supports CSV files.</p></div>
                 </div>
                 <div class="d-container">
                     <h2 class="d-header">File List</h2>
@@ -48,7 +50,6 @@
         </div>
         <div class="page hidden">
             <div id="page-codebook">
-                <div id="c-var-cover" class="no-access-bg"><p id="c-cover-text">Select a variable to modify its attributes.</p></div>
                 <div id="c-no-config" class="no-access-bg">
                     <div class="popup-box">
                         <div class="d-spacer"></div>
@@ -73,7 +74,7 @@
                     <h2 class="c-header">Variable List</h2>
                     <div id="c-var-list" class="c-column c-manage-box"></div>
                 </div>
-                <div id="c-var-info" class="c-column">
+                <div id="c-var-info" class="c-column invisible">
                     <h2 class="c-header">Variable Info</h2>
                     <p>Choose how raw data from the dataset is converted before being displayed. None applies no conversion, Range clamps numeric data, and convert allows
                         1:1 mapping of input (raw data) values to output (display) values.
@@ -88,8 +89,9 @@
                     <h2 class="c-header">Conversion Table</h2>
                     <div id="c-conv-table" class="c-column c-manage-box"></div>
                     <div class="c-horiz-bar" id="c-conv-buttons">
-                        <button class="c-button" onclick="newEntryButton()">new entry</button>
                         <button class="c-button" onclick="autoFillButton()">auto fill</button>
+                        <button class="c-button" onclick="newEntryButton()">new entry</button>
+                        <button class="c-button" onclick="convResetButton()">reset</button>
                     </div>
                 </div>
             </div>
@@ -107,8 +109,6 @@
         </div>
         <div class="page hidden">
             <div id="page-reports">
-                <div id="r-graph-cover" class="no-access-bg"><p id="c-cover-text">Select a graph to modify its settings.</p></div>
-                <div id="r-header-cover" class="no-access-bg"><p id="c-cover-text">Select a header to modify its settings.</p></div>
                 <div id="r-no-config" class="no-access-bg">
                     <div class="popup-box">
                         <div class="d-spacer"></div>
@@ -124,58 +124,82 @@
                     <div class="c-horiz-bar" style="margin-bottom:var(--page-margin)">
                         <button class="c-button" onclick="addGraphItem('Untitled Graph', REPORT_SELECTED)">new graph</button>
                         <button class="c-button" onclick="addHeaderItem('Untitled Header', REPORT_SELECTED)">new header</button>
+                        <button class="c-button" onclick="reportRemoveAllButton()">remove all</button>
                     </div>
                     <div id="r-report-list" class="c-column c-manage-box"></div>
                 </div>
-                <div id="r-graph-settings" class="c-column">
-                    <h2>Graph Settings</h2>
-                    <p>Choose how the selected graph should be displayed. Text fields (title, subtitle, x axis label, y axis label, and footer) all support HTML tags.</p>
-                    <div class="r-list-item">
-                        <p>Data Source:</p>
-                        <select class="c-input" id="r-data-source" onchange="saveChangesToGraph()"> 
-
-                        </select>
+                <div class="c-column" id="r-settings-double">
+                    <div id="r-graph-settings" class="r-settings-item invisible">
+                        <h2>Graph Settings</h2>
+                        <p>Choose how the selected graph should be displayed. Text fields (title, subtitle, x axis label, y axis label, and footer) all support HTML tags.</p>
+                        <div class="r-list-item">
+                            <p>Data Source:</p>
+                            <input list ="r-source-datalist" class="c-input" id="r-data-source" onchange="saveChangesToGraph()"> 
+    
+                        </input>
+                        </div>
+                        <div class="r-list-item">
+                            <p>Graph Type:</p>
+                            <select class="c-input" id="r-graph-type" onchange="saveChangesToGraph()">
+                                <option value="bar">Bar</option>
+                                <option value="pie">Pie</option>
+                                <option value="scatter">Scatter</option>
+                                <option value="line">Line</option>
+                                <option value="table">Table</option>
+                            </select>
+                        </div>
+                        <div class="r-list-item">
+                            <p>Title:</p>
+                            <input class="c-input" id="r-graph-title" onchange="saveChangesToGraph()">
+                        </div>
+                        <div class="r-list-item">
+                            <p>Subtitle:</p>
+                            <input class="c-input" id="r-graph-subtitle" onchange="saveChangesToGraph()">
+                        </div>
+                        <div class="r-list-item">
+                            <p>X Axis Label:</p>
+                            <input class="c-input" id="r-x-axis-label" onchange="saveChangesToGraph()">
+                        </div>
+                        <div class="r-list-item">
+                            <p>Y Axis Label:</p>
+                            <input class="c-input" id="r-y-axis-label" onchange="saveChangesToGraph()">
+                        </div>
+                        <div class="r-list-item">
+                            <p>Footer:</p>
+                            <input class="c-input" id="r-graph-footer" onchange="saveChangesToGraph()">
+                        </div>
                     </div>
-                    <div class="r-list-item">
-                        <p>Graph Type:</p>
-                        <select class="c-input" id="r-graph-type" onchange="saveChangesToGraph()">
-                            <option value="bar">Bar</option>
-                            <option value="pie">Pie</option>
-                            <option value="scatter">Scatter</option>
-                            <option value="line">Line</option>
-                        </select>
-                    </div>
-                    <div class="r-list-item">
-                        <p>Title:</p>
-                        <input class="c-input" id="r-graph-title" onchange="saveChangesToGraph()">
-                    </div>
-                    <div class="r-list-item">
-                        <p>Subtitle:</p>
-                        <input class="c-input" id="r-graph-subtitle" onchange="saveChangesToGraph()">
-                    </div>
-                    <div class="r-list-item">
-                        <p>X Axis Label:</p>
-                        <input class="c-input" id="r-x-axis-label" onchange="saveChangesToGraph()">
-                    </div>
-                    <div class="r-list-item">
-                        <p>Y Axis Label:</p>
-                        <input class="c-input" id="r-y-axis-label" onchange="saveChangesToGraph()">
-                    </div>
-                    <div class="r-list-item">
-                        <p>Footer:</p>
-                        <input class="c-input" id="r-graph-footer" onchange="saveChangesToGraph()">
+                    <div id="r-header-settings" class="r-settings-item invisible">
+                        <h2>Header Settings</h2>
+                        <p>Headers have a title (large/bold text) and a description (normal text). Both boxes have full support for HTML tags.</p>
+                        <div class="r-list-item">
+                            <p>Title:</p>
+                            <textarea rows="2" cols="30" id="r-header-title" class="r-textarea" onchange="saveChangesToHeader()"></textarea>
+                        </div>
+                        <div class="r-list-item">
+                            <p>description:</p>
+                            <textarea rows="6" cols="30" id="r-header-description" class="r-textarea" onchange="saveChangesToHeader()"></textarea>
+                        </div>
                     </div>
                 </div>
-                <div id="r-header-settings" class="c-column">
-                    <h2>Header Settings</h2>
-                    <p>Headers have a title (large/bold text) and a description (normal text). Both boxes have full support for HTML tags.</p>
-                    <div class="r-list-item">
-                        <p>Title:</p>
-                        <textarea rows="2" cols="30" id="r-header-title" class="r-textarea" onchange="saveChangesToHeader()"></textarea>
+                <div class="c-column" id="r-generate-settings">
+                    <h2>Generate Report</h2>
+                    <p>Choose how to handle missing data (left blank at source) and unmatched data (either out-of-range for conversion type 'range' or data that has no conversion table entry for conversion type 'convert').</p>
+                    <div class="c-horiz-bar">
+                        <label for="r-report-missing-data">Report missing data:</label>
+                        <input class="r-checkbox" type="checkbox" value = "on" id="r-report-missing-data" checked="true">
                     </div>
-                    <div class="r-list-item">
-                        <p>description:</p>
-                        <textarea rows="6" cols="30" id="r-header-description" class="r-textarea" onchange="saveChangesToHeader()"></textarea>
+                    <div class="c-horiz-bar">
+                        <label for="r-display-missing">Display missing data as: </label>
+                        <input class="c-input" id="r-display-missing" value="<blank>">
+                    </div>
+                    <div class="c-horiz-bar">
+                        <label for="r-report-unmatched-data">Report unmatched data:</label>
+                        <input class="r-checkbox" type="checkbox" value = "on" id="r-report-unmatched-data" checked="true">
+                    </div>
+                    <div class="c-horiz-bar">
+                        <label for="r-display-unmatched">Display unmatched data as: </label>
+                        <input class="c-input" id="r-display-unmatched" value="<out of range>">
                     </div>
                     <div class="r-generate-container">
                         <button class="r-chunky-button" onclick="openReport(DF, CODEBOOK, REPORT)"><b>Generate Report</b></button>
@@ -194,7 +218,7 @@
                 </div>
             </div>
         </div>
-        <div id="icon-attribution">Uicons by <a href="https://www.flaticon.com/uicons">Flaticon</a></div>
+        <div id="icon-attribution">Uicons by <a target='_blank' href="https://www.flaticon.com/uicons">Flaticon</a></div>
     </div>
     <div id="config-container">
         <h2 id="config-title">Config File</h2>
@@ -231,4 +255,5 @@
     </div>
     <div class="d-warning hidden" id="global-warning"><p id="global-warning-text"></p></div>
     <datalist id="c-add-datalist"></datalist>
+    <datalist id="r-source-datalist"></datalist>
 </body>

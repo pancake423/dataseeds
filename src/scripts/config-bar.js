@@ -8,12 +8,17 @@ function setConfigStatus(m, ok) {
 function setUnsavedChanges() {
     UNSAVED_CHANGES = true;
     setConfigStatus("Unsaved changes", !UNSAVED_CHANGES);
+    addEventListener("beforeunload", beforeUnloadListener, { capture: true });
 }
 function setNoUnsavedChanges() {
     UNSAVED_CHANGES = false;
     setConfigStatus("No unsaved changes", !UNSAVED_CHANGES);
-
+    removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
 }
+const beforeUnloadListener = (event) => {
+    event.preventDefault();
+    return (event.returnValue = "");
+  };
 function showConfigPrompt(type) {
     let title;
     let text;
@@ -60,16 +65,14 @@ function hideConfigPrompt(res) {
 }
 
 function newBlankConfig() {
-    UNSAVED_CHANGES = false;
     CODEBOOK = [[], [], []];
     CUSTOM_VARIABLES = [[], [], []];
     REPORT = [];
-    setConfigStatus("No unsaved changes", !UNSAVED_CHANGES);
+    setNoUnsavedChanges();
     hideConfigPageBlockers();
 }
 function autoGenerateConfig() {
-    UNSAVED_CHANGES = true;
-    setConfigStatus("Unsaved changes", !UNSAVED_CHANGES);
+    setUnsavedChanges();
     // auto populate codebook, custom variables, and report (should be fun)
     // ensure that DF has been loaded from workspace
     createMergedDF();
@@ -103,8 +106,7 @@ function addExistingConfig() {
         CODEBOOK = config['codebook'];
         CUSTOM_VARIABLES = config['custom'];
         REPORT = config['report'];
-        UNSAVED_CHANGES = false;
-        setConfigStatus("No unsaved changes", !UNSAVED_CHANGES);
+        setNoUnsavedChanges();
         hideConfigPageBlockers();
     }).catch((err) => {
             console.error(err);
@@ -133,8 +135,7 @@ function saveCurrentConfig() {
         const config = JSON.stringify({codebook: CODEBOOK, custom: CUSTOM_VARIABLES, report: REPORT});
         writable.write(config);
         writable.close();
-        UNSAVED_CHANGES = false;
-        setConfigStatus("No unsaved changes", !UNSAVED_CHANGES);
+        setNoUnsavedChanges();
       })
       .catch((err) => {
         console.error(err);

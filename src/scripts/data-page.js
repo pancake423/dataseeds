@@ -11,11 +11,11 @@ function dropHandler(e) {
                 if (file.type === "text/csv") {
                     fileList.push(file)
                 } else {
-                    showFileWarning("Auto Report Generator only supports CSV files.");
+                    showFileWarning("dataseeds only supports CSV files.");
                     return;
                 }
             } else {
-                showFileWarning("Auto Report Generator only supports CSV files.");
+                showFileWarning("dataseeds only supports CSV files.");
                 return;
             }
         }

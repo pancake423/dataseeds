@@ -25,6 +25,7 @@ p {
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition-duration: var(--global-transition-duration);
 }
 .c-button {
     padding: 0.5em;

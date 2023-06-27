@@ -9,7 +9,7 @@
     --round-amt: 5px;
     --global-transition-duration: 0.25s;
     --header-font-size: 1.25em;
-    --no-access-bg-color: rgba(0, 0, 0, 0.5);
+    --no-access-bg-color: rgba(0, 0, 0, 0.15);
     --no-access-setting-color: rgba(255,255,255,0.5);
     --color-green: lightgreen;
     --config-container-width: 7em;
@@ -52,7 +52,7 @@ body {
     position: absolute;
     left: var(--page-margin);
     top: calc(var(--page-margin) + var(--tab-bar-height));
-    overflow-y:scroll;
+    overflow-y:clip;
 }
 #config-container {
     width: var(--config-container-width);
@@ -193,4 +193,10 @@ body {
     cursor: initial;
     padding: var(--page-margin);
     border-top: 3px solid var(--color-accent);
+}
+
+.invisible {
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
 }

@@ -2,60 +2,104 @@
 
 let WORKSPACE = {}; //contains data frames for every file currently loaded into the program.
 let COLUMN_MISMATCH_HANDLING = 'flag' //how to handle data files with mismatched column names. 'flag', 'merge', or 'drop'. for more info about what each mode does, see BudgetDataFrame append() method.
-let CODEBOOK = [];
-let CUSTOM_VARIABLES = [];
-let REPORT = [];
-let UNSAVED_CHANGES = false;
-let DF = new BudgetDataFrame(); //data frame containing combined user entries
-let DF_UP_TO_DATE = false;
-let CODEBOOK_SELECTED = -1; //which codebook element (name) is currently being modified
-let REPORT_SELECTED = -1;
 
-// main page UI functions. each sub-page's UI functionality is delegated to a separate file.
+// stores the data unpacked from the config file.
+let CODEBOOK = [];
+let CODEBOOK_SELECTED = -1; //which codebook element (name) is currently being modified
+
+let CUSTOM_VARIABLES = [];
+
+let REPORT = [];
+let REPORT_SELECTED = -1; //which report element (id) is currently selected
+let REPORT_DRAG_SOURCE = -1; //used for tracking the source id for report drag/drop rearrange actions.
+
+let UNSAVED_CHANGES = false; // whether or not the current config has unsaved changes.
+
+let DF = new BudgetDataFrame(); //data frame containing combined user entries
+let DF_UP_TO_DATE = false; // used to track whether or not DF needs to be updated (to save on computation)
+
+// main page UI functions. each sub-page's functionality is delegated to a separate file.
+
+/**
+ * Raises a custom alert, appearing as a red box in the top-center of the page, that lasts for 5 seconds.
+ * used as a replacement for window.alert() that is non-blocking.
+ * @param {string} message - text content of the box
+ */
 function customAlert(message) {
     document.getElementById("global-warning-text").innerText = message;
     document.getElementById("global-warning").style.opacity = 1;
     document.getElementById("global-warning").className = "d-warning shown";
     window.setTimeout(() => {document.getElementById("global-warning").style.opacity = 0; window.setTimeout(() => document.getElementById("global-warning").className = "d-warning hidden", 500)}, 3000);
 }
+
+/**
+ * opens the global warning popup, which blocks access to any of the page functionality until the user selects one of the two buttons (ok or cancel).
+ * used as a replacement for window.confirm()
+ * @param {string} title - title of prompt
+ * @param {string} text - body text of prompt
+ * @param {function} okCallback - function that is called if the user clicks the 'OK' button
+ * @param {function} cancelCallback - function that is called if the user clicks the 'Cancel' button
+ */
 function globalWarningPopup(title, text, okCallback, cancelCallback) {
     document.getElementById("global-confirm-title").innerHTML = title;
     document.getElementById("global-confirm-text").innerHTML = text;
     document.getElementById("global-confirm-popup").className = "no-access-bg shown";
 
-    document.getElementsByClassName("global-confirm-button")[0].onclick = () => {hideGlobalWarningPopup(); okCallback()};
-    document.getElementsByClassName("global-confirm-button")[1].onclick = () => {hideGlobalWarningPopup(); cancelCallback()};
-}
-function hideGlobalWarningPopup() {
-    document.getElementById("global-confirm-popup").className = "no-access-bg hidden";
+    document.getElementsByClassName("global-confirm-button")[0].onclick = () => {document.getElementById("global-confirm-popup").className = "no-access-bg hidden"; okCallback()};
+    document.getElementsByClassName("global-confirm-button")[1].onclick = () => {document.getElementById("global-confirm-popup").className = "no-access-bg hidden"; cancelCallback()};
 }
 
-// refresh the content on each page whenever a data update is made.
+/**
+ * refreshes the content on each page. called whenever a data update is made (such as uploading a codebook, loading a new data file, etc.)
+ */
 function refreshPageContent() {
     loadCodebookPage();
     loadReportsPage();
 }
 
-// tab bar functionality. allows user to switch between tabs
+/**
+ * selects the nth tab from page-container. highlights that tab in the tab bar and shows the corresponding page content, while hiding all other pages.
+ * also calls special functions for some tabs that need to be run on load.
+ * @param {int} n - id of tab being selected.
+ */
 function selectTab(n) {
     // get list of all page and tab elements
     const pages = document.getElementById("page-container").children;
     const tabs = document.getElementById("tab-bar").children;
+    let prev_tab = -1;
 
     // select the nth tab and show the nth page, hide all others
     for (let i = 0; i < tabs.length; i++) {
-        tabs[i].className = i === n ? "tab selected" : "tab";
-        pages[i].className = i === n ? "page shown" : "page hidden";
+        if (tabs[i].className === "tab selected") {prev_tab = i}
+        if (i === n) {
+            tabs[i].className = "tab selected";
+            pages[i].className = "page shown";
+        } else {
+            tabs[i].className = "tab";
+            pages[i].className = "page hidden";
+        }
     }
+    
+    if (n === prev_tab) return; //don't call tab load functions if we don't change tabs.
+
     //functions called whenever a tab loads.
     if (checkWorkspaceLoaded()) {
         if (n !== 0) createMergedDF();
-        if (n === 1) loadCodebookPage();
     }
+    if (n === 1) loadCodebookPage();
     if (n === 3) loadReportsPage();
 }
 
 //Data operations
+
+/**
+ * Dependent on DF, DF_UP_TO_DATE, WORKSPACE, COLUMN_MISMATCH_HANDLING
+ * 
+ * if the current global data frame (DF) is out of date, update it by appending the contents of all files listed in WORKSPACE.
+ * the append method is COLUMN_MISMATCH_HANDLING.
+ * modifies DF, DF_UP_TO_DATE.
+ * @returns {int|null } 0 if df up to date otherwise null
+ */
 function createMergedDF() {
     if (DF_UP_TO_DATE) return 0;
     DF_UP_TO_DATE = true;
@@ -66,6 +110,6 @@ function createMergedDF() {
             DF = WORKSPACE[key].copy();
             continue;
         }
-        DF.append(WORKSPACE[key]);
+        DF.append(WORKSPACE[key], COLUMN_MISMATCH_HANDLING);
     }
 }

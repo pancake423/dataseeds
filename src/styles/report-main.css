@@ -1,5 +1,4 @@
 :root {
-    --page-width: 1300px;
     --page-margin: 1em;
     --page-color: white;
     --background-color: #f5f0f0;
@@ -8,15 +7,43 @@
     --graph-title-size: 1.25em;
     --text-size: 1em;
     --text-color: black;
+
+    /* These variables are modified by Javascript. To change these values change the constants in report-main.js. */
+    --page-width: 1300px;
+    --graph-normal-width: 300px;
+    --graph-wide-width: 600px;
 }
-body {
-    margin: var(--page-margin);
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-    background-color: var(--background-color);
-    font-family: var(--font);
-    color: var(--text-color);
+@page {
+    size: A4;
+}
+@media print {
+    :root {
+        --page-margin: 0.5cm;
+    }
+    body {
+        margin: 0;
+        left: 0;
+        top: 0;
+        position: absolute;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        background-color: var(--page-color);
+        font-family: var(--font);
+        color: var(--text-color);
+    }
+}
+@media screen {
+    body {
+        margin: var(--page-margin);
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        background-color: var(--background-color);
+        font-family: var(--font);
+        color: var(--text-color);
+    }
 }
 p {
     font-size: var(--text-size);
@@ -31,6 +58,7 @@ h2 {
     font-size: var(--graph-title-size);
     margin: var(--page-margin);
     text-align: center;
+    overflow-wrap: break-word;
 }
 #page-body {
     width: var(--page-width);
@@ -53,11 +81,12 @@ h2 {
     color: var(--text-color);
 }
 .graph-normal {
-    width: 300px;
+    width: var(--graph-normal-width);
 }
 .graph-wide {
-    width: 600px;
+    width: var(--graph-wide-width);
 }
 .graph-container {
     box-sizing: border-box;
+    page-break-inside: avoid;
 }

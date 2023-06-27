@@ -1,6 +1,9 @@
 function loadCodebookPage() {
     // merged df already created if possible
     // check that codebook is loaded
+    CODEBOOK_SELECTED = -1;
+    selectVariable("ajkhsfdglkjdfgsldfgsdwassadf");
+    if (!checkWorkspaceLoaded()) return;
     if (!checkConfigLoaded()) return;
     populateVariableList();
     populateAddDatalist();
@@ -85,14 +88,12 @@ function removeVariable(event, name) {
     // unselect if was selected
     if (CODEBOOK_SELECTED === name) {
         CODEBOOK_SELECTED = -1;
-        showVarInfoCover();
+        hideVarInfo();
     }
     // add to datalist
     document.getElementById('c-add-datalist').innerHTML += `<option>${name}</option>`;
     setUnsavedChanges();
 }
-
-// TODO: warning prompt
 function checkAddAllVariables() {
     globalWarningPopup("Add All Variables?", `Auto-adds all variables detected in the workspace to the current codebook. This action will add ${document.getElementById('c-add-datalist').children.length} variables to the codebook and can't be undone.`, addAllVariables, () => 0);
 }
@@ -100,7 +101,7 @@ function addAllVariables() {
     for (const option of document.getElementById('c-add-datalist').children) {
         addVariable(option.innerHTML);
         option.remove();
-    }
+    }shown
     setUnsavedChanges();
 }
 // TODO: warn the user what they're about to do :) 
@@ -111,6 +112,7 @@ function checkRemoveAllVariables() {
 function removeAllVariables() {
     CODEBOOK = [[], [], []];
     document.getElementById('c-var-list').innerHTML = "";
+    populateAddDatalist();
     setUnsavedChanges();
 }
 
@@ -118,10 +120,16 @@ function removeAllVariables() {
 function selectVariable(name) {
     for (const listItem of document.getElementById('c-var-list').children) {
         if (listItem.getElementsByTagName("p")[0].innerText === name) {
-            listItem.className = "c-list-item c-selected";
-            CODEBOOK_SELECTED = name;
-            setConversionTable();
-            hideVarInfoCover();
+            if (CODEBOOK_SELECTED === name) {
+                CODEBOOK_SELECTED = -1;
+                listItem.className = "c-list-item";
+                hideVarInfo();
+            } else {
+                listItem.className = "c-list-item c-selected";
+                CODEBOOK_SELECTED = name;
+                setConversionTable();
+                showVarInfo();
+            }
         } else {
             listItem.className = "c-list-item"
         }
@@ -129,11 +137,11 @@ function selectVariable(name) {
     }
 }
 
-function hideVarInfoCover() {
-    document.getElementById("c-var-cover").className = "no-access-bg hidden";
+function showVarInfo() {
+    document.getElementById("c-var-info").className = "c-column";
 }
-function showVarInfoCover() {
-    document.getElementById("c-var-cover").className = "no-access-bg shown";
+function hideVarInfo() {
+    document.getElementById("c-var-info").className = "c-column invisible";
 }
 function conversionTableHasData() {
     const index = CODEBOOK[0].findIndex((e) => e === CODEBOOK_SELECTED);
@@ -152,10 +160,9 @@ function checkChangeConversionType() {
             changeConversionType, setConversionTable);
         return;
     }
-    changeConversionType();
+    changeConversionType(document.getElementById("c-conversion-type").value);
 }
-function changeConversionType() {
-    const conv = document.getElementById("c-conversion-type").value;
+function changeConversionType(conv) {
     // find codebook index
     const index = CODEBOOK[0].findIndex((e) => e === CODEBOOK_SELECTED);
     clearConversionTable();
@@ -269,13 +276,13 @@ function newEntryButton() {
     if (CODEBOOK[1][index] === "convert") {
         addConvPair();
     } else {
-        customAlert("new entries can only be created for conversion type 'Convert'.")
+        customAlert("new entries can only be created for conversion type 'Convert'.");
     }
 }
 
 function autoFillButton() {
     const index = CODEBOOK[0].findIndex((e) => e === CODEBOOK_SELECTED);
-    if (!checkWorkspaceLoaded()) customAlert("Auto filling conversion table requires data files to be uploaded.");
+    if (!checkWorkspaceLoaded()) {customAlert("Auto filling conversion table requires data files to be uploaded."); return;}
     if (CODEBOOK[1][index] === "none") {
         customAlert("Conversion type 'None' does not support auto fill.");
     } else {
@@ -308,4 +315,16 @@ function autoFillConversionTable() {
         CODEBOOK[2][index] = entry;
     }
     setConversionTable();
+}
+function convResetButton() {
+    // warn user if appropriate (they will lose saved work)
+    // get conversion type, reset to the default case for that conversion type
+    if (conversionTableHasData()) {
+        globalWarningPopup("Reset Conversion Table?", "This will delete all data currently in the conversion table and cannot be undone.", resetConversionTable, () => 0)
+        return;
+    }
+    resetConversionTable();
+}
+function resetConversionTable() {
+    changeConversionType(document.getElementById("c-conversion-type").value);
 }
