@@ -1,5 +1,5 @@
 # dataseeds
-Analyze data sets, generate reports, and create detailed graphs on any data set, all within the browser.
+Raw data to reports in minutes. Analyze data sets and create detailed graphs, locally within the browser.
 
 #
 Author: William Jackson
@@ -17,7 +17,7 @@ create a report (section titles and graphs, graph customization)
 
 create custom graphs (including graphs of two variables)
 
-upload, download, and generate configuration files that store information about reports.
+upload, download, and generate project files that save all your work.
 
 #
 Dependencies:
