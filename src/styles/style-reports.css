@@ -83,9 +83,10 @@
     transition-duration: var(--global-transition-duration);
     accent-color: var(--color-dark);
     cursor: pointer;
+    margin-block: var(--page-margin);
 }
 
 #r-generate-settings {
-    gap: 2em;
     align-items: stretch;
+    justify-content: flex-start;
 }

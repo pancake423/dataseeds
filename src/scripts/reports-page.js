@@ -32,7 +32,7 @@ function loadReportFromCodebook() {
         I spent nearly an hour trying to figure out why this function was hanging. It was because I was using 'addHeaderItem' and 'addGraphItem' to populate the list,
         and totally forgot that those functions ADD AN ITEM to the report list, meaning the list grew infinitely as it tried to populate all the items.
 
-        This memorial has been placed in hopes that immediate-future William is more careful and that long-term-future William avoids mutable states like the plague.
+        This memorial has been placed in hopes that immediate-future William is more careful and that long-term-future William avoids mutable states (or at least makes them much clearer).
         pure functional programming would have saved me here.
         */
         if (REPORT[i].length === 2) {
@@ -85,7 +85,7 @@ function buildBaseListElement(title, iconSrc) {
  */
 function addHeaderItem(title, index, values, alreadyExistsInCodebook = false) {
     const itemToAdd = values === undefined ? [title, ""] : values;
-    setUnsavedChanges();
+    if (!alreadyExistsInCodebook) setUnsavedChanges();
     const div = buildBaseListElement(title, "src/assets/heading.svg");
     if (index === -1) {
         document.getElementById("r-report-list").appendChild(div);
@@ -108,7 +108,7 @@ function addHeaderItem(title, index, values, alreadyExistsInCodebook = false) {
  */
 function addGraphItem(title, index, values, alreadyExistsInCodebook = false) {
     const itemToAdd = values === undefined ? ["", "", title, "", "", "", ""] : values;
-    setUnsavedChanges();
+    if (!alreadyExistsInCodebook) setUnsavedChanges();
     let newGraphTitle = ""
     if (!CODEBOOK[0].includes(itemToAdd[0])) {
         newGraphTitle += `<img title="Data source '${itemToAdd[0]}' not found in codebook" class="d-icon" src="src/assets/triangle-warning.svg">`;
@@ -152,6 +152,7 @@ function removeReportItem(e) {
     const index = getReportItemIndex(e.srcElement.parentElement.parentElement);
     document.getElementById("r-report-list").children[index].remove();
     REPORT.splice(index, 1);
+    setUnsavedChanges();
     if (index === REPORT_SELECTED) {
         REPORT_SELECTED = -1;
         blockSettingsPanels();
@@ -337,4 +338,25 @@ function reportRemoveAllButton() {
             () => 0
         );
     }
+}
+/**
+ * Opens a blank report in a new tab. Registers a temporary event listener that is used to send data to the report tab once it's loaded.
+ * 
+ * @param {BudgetDataFrame} DF - Dataframe with all data to be included in the report
+ * @param {Array<Array>} CODEBOOK - Codebook describing how to decode each column of the data frame
+ * @param {Array<Array>} REPORT - Report structure: how to lay out and display each variable.
+ */
+function openReport(DF, CODEBOOK, REPORT) {
+    if (!checkWorkspaceLoaded()) {customAlert("No data files loaded! Report would be blank."); return;}
+    const reportWindow = window.open(
+        `src/report.html`,//URL
+        "_blank" //open in new tab
+    );
+    function postReportOnLoad(e) {
+        if (e.data === "r") {
+            reportWindow.postMessage(generateReportObject(DF, CODEBOOK, REPORT, getReportSettings()), "*");
+        }
+        window.removeEventListener("message", postReportOnLoad);
+    }
+    window.onmessage = postReportOnLoad;
 }

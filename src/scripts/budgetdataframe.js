@@ -288,4 +288,29 @@ class BudgetDataFrame {
     getData() {
         return this.#data.map((r) => r.map((i) => i))
     }
+
+    exportAsObject() {
+        return {
+            "dtype": "BudgetDataFrame",
+            "columns": this.#columns,
+            "data": this.#data,
+            "numColumns": this.numColumns,
+            "numRows": this.numRows
+        }
+    }
+    importFromObject(obj) {
+        // type checking
+        if (!(obj instanceof Object)) throw TypeError(`Cannot import from '${obj}': not of type Object.`);
+        for (const property of ["dtype", "columns", "data", "numColumns", "numRows"]) {
+            if (!(property in obj)) throw Error(`Object '${obj}' missing property '${property}'`);
+        }
+        //set properties (same as constructor)
+        if (BudgetDataFrame.#checkValidData(obj["columns"], obj["data"])) {
+            this.#columns = obj["columns"];
+            this.#data = obj["data"];
+            this.numColumns = this.#data[0].length;
+            this.numRows = this.#data.length;
+        }
+
+    }
 }

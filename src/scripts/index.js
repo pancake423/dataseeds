@@ -5,7 +5,6 @@ let COLUMN_MISMATCH_HANDLING = 'flag' //how to handle data files with mismatched
 
 // stores the data unpacked from the config file.
 let CODEBOOK = [];
-let CODEBOOK_SELECTED = -1; //which codebook element (name) is currently being modified
 
 let CUSTOM_VARIABLES = [];
 
@@ -17,6 +16,22 @@ let UNSAVED_CHANGES = false; // whether or not the current config has unsaved ch
 
 let DF = new BudgetDataFrame(); //data frame containing combined user entries
 let DF_UP_TO_DATE = false; // used to track whether or not DF needs to be updated (to save on computation)
+
+//CustomList object bindings
+let DATA_FILE_LIST;
+let CB_LIST;
+let CV_LIST;
+let R_LIST;
+
+let SUGGESTED_SAVE_FILE_NAME = "New Project";
+
+window.onload = init;
+
+function init() {
+    initDataFilesPage();
+    initCodebookPage();
+    initCustomVariablesPage();
+}
 
 // main page UI functions. each sub-page's functionality is delegated to a separate file.
 
@@ -53,7 +68,9 @@ function globalWarningPopup(title, text, okCallback, cancelCallback) {
  * refreshes the content on each page. called whenever a data update is made (such as uploading a codebook, loading a new data file, etc.)
  */
 function refreshPageContent() {
+    refreshFileList();
     loadCodebookPage();
+    initCustomVariablesPage();
     loadReportsPage();
 }
 
@@ -82,10 +99,12 @@ function selectTab(n) {
     
     if (n === prev_tab) return; //don't call tab load functions if we don't change tabs.
 
+
     //functions called whenever a tab loads.
     if (checkWorkspaceLoaded()) {
         if (n !== 0) createMergedDF();
     }
+    if (n === 0) refreshFileList();
     if (n === 1) loadCodebookPage();
     if (n === 3) loadReportsPage();
 }

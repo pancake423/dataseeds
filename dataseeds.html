@@ -6,14 +6,20 @@
     <script src="src/scripts/codebook-page.js" type="text/javascript"></script>
     <script src="src/scripts/reports-page.js" type="text/javascript"></script>
     <script src="src/scripts/report-url-gen.js" type="text/javascript"></script>
+    <script src="src/scripts/customlist.js" type="text/javascript"></script>
+    <script src="src/scripts/variables-page.js" type="text/javascript"></script>
+    <script src="src/scripts/start-screen.js" type="text/javascript"></script>
     <script src="src/scripts/index.js" type="text/javascript"></script>
     
     <link href="src/styles/style-data.css" rel="stylesheet"/>
     <link href="src/styles/style-codebook.css" rel="stylesheet"/>
     <link href="src/styles/style-reports.css" rel="stylesheet"/>
     <link href="src/styles/style-main.css" rel="stylesheet"/>
+    <link href="src/styles/style-variables.css" rel="stylesheet"/>
+    <link href="src/styles/style-start.css" rel="stylesheet"/>
+
     <link rel="icon" type="image/x-icon" href="src/assets/coffee-beans.svg">
-    <title>dataseeds</title>
+    <title>DataSeeds</title>
 </head>
 <body>
     <div id="tab-bar">
@@ -32,7 +38,7 @@
                     <div class="d-spacer"></div>
                     <div id="d-security-note">
                         <h3 class="d-header">Your files are secure <img src="src/assets/lock.svg" class="d-icon" /></h3>
-                        <p> This program never uploads, stores, or modifies data files. They are only accessed locally by the browser.</p>
+                        <p> This program never uploads, stores, or modifies your data files. A local copy is made in the browser, and stored in any downloaded project files.</p>
                     </div>
                     <div class="d-spacer"></div>
                     <p><button id="d-upload-button" onclick = "filePickerButtonCSV()">Add files</button> or drag and drop below:</p>
@@ -50,16 +56,11 @@
         </div>
         <div class="page hidden">
             <div id="page-codebook">
-                <div id="c-no-config" class="no-access-bg">
-                    <div class="popup-box">
-                        <div class="d-spacer"></div>
-                        <p>Add or create a config file to work on the codebook.</p>
-                        <div class="d-spacer"></div>
-                    </div>
-                </div>
                 <div id="c-var-manage" class="c-column">
                     <h2 class="c-header">Manage Variables</h2>
-                    <p>Use the buttons below to add or remove variables from the codebook. Click on a variable in the list to modify its properties.</p>
+                    <p>Use the buttons below to add or remove variables from the codebook. Click on a variable in the list to modify its properties. The variable list can be 
+                        searched using the (Ctrl/Cmd)+f keyboard shortcut.
+                    </p>
                     <div class="c-horiz-bar" width="100%">
                         <div class="c-horiz-bar">
                             <input id="c-var-name-input" class="c-input" list="c-add-datalist"/>
@@ -98,24 +99,11 @@
         </div>
         <div class="page hidden">
             <div id="page-custom">
-                <div id="v-no-config" class="no-access-bg">
-                    <div class="popup-box">
-                        <div class="d-spacer"></div>
-                        <p>Add or create a config file to work on custom variables.</p>
-                        <div class="d-spacer"></div>
-                    </div>
-                </div>
+                <div id="v-var-list" class="c-column c-manage-box"></div>
             </div>
         </div>
         <div class="page hidden">
             <div id="page-reports">
-                <div id="r-no-config" class="no-access-bg">
-                    <div class="popup-box">
-                        <div class="d-spacer"></div>
-                        <p>Add or create a config file to make reports.</p>
-                        <div class="d-spacer"></div>
-                    </div>
-                </div>
                 <div id="r-report-structure" class="c-column">
                     <h2>Report Structure</h2>
                     <p>The order in which graphs and report section headers should be displayed. Use the buttons below to add new graphs and headers. Click on a graph or
@@ -187,19 +175,23 @@
                     <p>Choose how to handle missing data (left blank at source) and unmatched data (either out-of-range for conversion type 'range' or data that has no conversion table entry for conversion type 'convert').</p>
                     <div class="c-horiz-bar">
                         <label for="r-report-missing-data">Report missing data:</label>
-                        <input class="r-checkbox" type="checkbox" value = "on" id="r-report-missing-data" checked="true">
+                        <input class="r-checkbox" type="checkbox" value = "on" id="r-report-missing-data" checked>
                     </div>
                     <div class="c-horiz-bar">
                         <label for="r-display-missing">Display missing data as: </label>
-                        <input class="c-input" id="r-display-missing" value="<blank>">
+                        <input class="c-input" id="r-display-missing" value="Missing Data">
                     </div>
                     <div class="c-horiz-bar">
                         <label for="r-report-unmatched-data">Report unmatched data:</label>
-                        <input class="r-checkbox" type="checkbox" value = "on" id="r-report-unmatched-data" checked="true">
+                        <input class="r-checkbox" type="checkbox" value = "on" id="r-report-unmatched-data" checked>
                     </div>
                     <div class="c-horiz-bar">
                         <label for="r-display-unmatched">Display unmatched data as: </label>
-                        <input class="c-input" id="r-display-unmatched" value="<out of range>">
+                        <input class="c-input" id="r-display-unmatched" value="Unmatched Data">
+                    </div>
+                    <div class="c-horiz-bar">
+                        <label for="r-report-footer">Report bad data in footer:</label>
+                        <input class="r-checkbox" type="checkbox" value = "on" id="r-report-footer">
                     </div>
                     <div class="r-generate-container">
                         <button class="r-chunky-button" onclick="openReport(DF, CODEBOOK, REPORT)"><b>Generate Report</b></button>
@@ -209,28 +201,20 @@
         </div>
         <div class="page hidden">
             <div id="page-graphs">
-                <div id="g-no-config" class="no-access-bg">
-                    <div class="popup-box">
-                        <div class="d-spacer"></div>
-                        <p>Add or create a config file to make graphs.</p>
-                        <div class="d-spacer"></div>
-                    </div>
-                </div>
             </div>
         </div>
         <div id="icon-attribution">Uicons by <a target='_blank' href="https://www.flaticon.com/uicons">Flaticon</a></div>
     </div>
     <div id="config-container">
-        <h2 id="config-title">Config File</h2>
-        <button class="config-button" title="New (blank) configuration file" onclick="showConfigPrompt('blank')"><img class="config-button-icon" src="src/assets/square-plus-white.svg"/></button>
-        <button class="config-button" title="Auto-generate configuration file (requires data to be uploaded)" onclick="showConfigPrompt('auto')"><img class="config-button-icon" src="src/assets/gear-white.svg"/></button>
-        <button class="config-button" title="Add existing configuration file" onclick="showConfigPrompt('existing')"><img class="config-button-icon" src="src/assets/upload-white.svg"/></button>
-        <button class="config-button" title="Save current configuration file" onclick="saveCurrentConfig()"><img class="config-button-icon" src="src/assets/download-white.svg"/></button>
+        <h2 id="config-title">Project File</h2>
+        <button class="config-button" title="New (blank) project file" onclick="showConfigPrompt('blank')"><img class="config-button-icon" src="src/assets/square-plus-white.svg"/></button>
+        <button class="config-button" title="Auto-generate project file (requires data to be uploaded)" onclick="showConfigPrompt('auto')"><img class="config-button-icon" src="src/assets/gear-white.svg"/></button>
+        <button class="config-button" title="Add existing project file" onclick="showConfigPrompt('existing')"><img class="config-button-icon" src="src/assets/upload-white.svg"/></button>
+        <button class="config-button" title="Save current project file" onclick="saveCurrentConfig()"><img class="config-button-icon" src="src/assets/download-white.svg"/></button>
         <div class="d-spacer"></div>
         <div class="d-spacer"></div>
     </div>
     <div id="config-status-box">
-        <p id="config-status-text" class="red">No configuration file</p>
     </div>
     <div id="d-mismatch-popup" class="no-access-bg hidden">
         <div id="d-mismatch-box" class="popup-box">
@@ -251,6 +235,17 @@
                 <button class="global-confirm-button accent" onclick="">OK</button>
                 <button class="global-confirm-button bg" onclick="">Cancel</button>
             </div>
+        </div>
+    </div>
+    <div id="start-page">
+        <div>
+            <h1 id="start-title"><img src="src/assets/coffee-beans.svg" class="start-icon"/>DataSeeds<img src="src/assets/leaf.svg" class="start-icon"/></h1>
+            <p id="start-descr">Raw data to reports in minutes. Analyze data sets and create detailed graphs, locally within the browser.</p>
+            <div id="start-button-bar">
+                <button class ="start-button" title="New Project" onclick="newProjectButton()"><img class ="start-button-icon" src="src/assets/square-plus.svg"/></button>
+                <button class ="start-button" title="Upload Existing Project" onclick="existingProjectButton()"><img class ="start-button-icon" src="src/assets/upload.svg"/></button>
+            </div>
+            <a href="https://docs.google.com/document/d/16gLJqnbZx7XQxT87J2j1RHekv4hfxlI64_kcMoJ5DRs/edit?usp=sharing" target="_blank" id="start-help-link">help</a>
         </div>
     </div>
     <div class="d-warning hidden" id="global-warning"><p id="global-warning-text"></p></div>

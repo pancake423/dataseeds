@@ -1,9 +1,9 @@
 function setConfigStatus(m, ok) {
     //m -> string message
     //ok -> text is green if true, red if false
-    const c = document.getElementById('config-status-text');
-    c.className = ok ? 'green' : 'red';
-    c.innerText = m;
+    const c = document.getElementsByClassName("config-button-icon")[3];
+    c.src = ok ? 'src/assets/download-green.svg' : 'src/assets/download-red.svg';
+    c.title = `Save current project file (${m})`;
 }
 function setUnsavedChanges() {
     UNSAVED_CHANGES = true;
@@ -24,24 +24,27 @@ function showConfigPrompt(type) {
     let text;
     switch (type) {
         case 'blank':
-            title = "New Blank Configuration";
-            text = "Creates a new blank file with no information in it.";
+            title = "New Blank Project";
+            text = "sets the current project to a blank project.";
+            if (UNSAVED_CHANGES) text += "<br><br> Unsaved changes will be lost if you proceed.";
+            if (checkConfigLoaded()) text += "<br><br> All currently loaded data will be overwritten.";
             break;
         case 'auto':
             if (Object.keys(WORKSPACE).length === 0) {
-                customAlert("At least one data file must be added in order to auto generate a config file.");
+                customAlert("At least one data file must be added in order to auto generate a project file.");
                 return;
             }
-            title = "Auto Generate Configuration";
+            title = "Auto Generate Project";
             text = "Auto generate a basic codebook and report based on the CSV files that are uploaded.";
+            if (UNSAVED_CHANGES || checkConfigLoaded()) text += "<br><br> All data in 'Codebook' and 'Report' will be overwritten if you proceed.";
             break;
         case 'existing':
             title = "Add Existing Configuration";
             text = "Use a config file from your local machine.";
+            if (UNSAVED_CHANGES) text += "<br><br> Unsaved changes will be lost if you proceed.";
+            if (checkConfigLoaded()) text += "<br><br> The currently loaded project file will be replaced if you proceed.";
             break;
     }
-    if (UNSAVED_CHANGES) text += "<br><br> You have unsaved changes that will be lost if you proceed.";
-    if (checkConfigLoaded()) text += "<br><br> The currently loaded config file will be replaced if you proceed.";
 
     globalWarningPopup(title, text, () => hideConfigPrompt(type), () => 0);
 
@@ -68,6 +71,7 @@ function newBlankConfig() {
     CODEBOOK = [[], [], []];
     CUSTOM_VARIABLES = [[], [], []];
     REPORT = [];
+    WORKSPACE = [];
     setNoUnsavedChanges();
     hideConfigPageBlockers();
 }
@@ -94,20 +98,24 @@ function autoGenerateConfig() {
     hideConfigPageBlockers();
 
 }
-function addExistingConfig() {
+function addExistingConfig(callback) {
     // prompt user to select JSON file.
     // only if file upload is successful:
     filePickerButtonJSON().then((fileText) => {
         const config = JSON.parse(fileText);
         // ensure config file is valid
-        if (!('codebook' in config && 'custom' in config && 'report' in config)) {customAlert("Invalid configuration file."); return -1};
-        if (!(config['codebook'].length === 3 && config['custom'].length === 3 && config['report'].length >= 2)) {alert("Invalid configuration file."); return -1};
+        if (!('codebook' in config && 'custom' in config && 'report' in config && 'workspace' in config)) {customAlert("Invalid configuration file."); return -1};
+        if (!(config['codebook'].length === 3 && config['custom'].length === 3)) {customAlert("Invalid configuration file."); return -1};
             
         CODEBOOK = config['codebook'];
         CUSTOM_VARIABLES = config['custom'];
         REPORT = config['report'];
+        parseWorkspaceObject(config['workspace'])
         setNoUnsavedChanges();
         hideConfigPageBlockers();
+        if (callback) {
+            callback();
+        }
     }).catch((err) => {
             console.error(err);
     });
@@ -127,12 +135,12 @@ function saveCurrentConfig() {
           },
         ],
         excludeAcceptAllOption: true,
-        suggestedName: 'config'
+        suggestedName: SUGGESTED_SAVE_FILE_NAME
       };
       showSaveFilePicker(opts)
       .then((handle) => handle.createWritable())
       .then((writable) => {
-        const config = JSON.stringify({codebook: CODEBOOK, custom: CUSTOM_VARIABLES, report: REPORT});
+        const config = JSON.stringify({codebook: CODEBOOK, custom: CUSTOM_VARIABLES, report: REPORT, workspace: getWorkspaceObject(WORKSPACE)});
         writable.write(config);
         writable.close();
         setNoUnsavedChanges();
@@ -143,25 +151,32 @@ function saveCurrentConfig() {
     
 
 }
+function getWorkspaceObject(w) {
+    out = {}
+    for (const key in w) {
+        out[key] = w[key].exportAsObject();
+    }
+    return out;
+}
+function parseWorkspaceObject(w) {
+    WORKSPACE = {};
+    for (const key in w) {
+
+        WORKSPACE[key] = new BudgetDataFrame();
+        WORKSPACE[key].importFromObject(w[key]);
+    }
+}
 function checkConfigLoaded() {
     return CODEBOOK.length === 3 && CUSTOM_VARIABLES.length == 3;
 }
 
 function hideConfigPageBlockers() {
-    const pageBlockers = [
-    document.getElementById("r-no-config"),
-    document.getElementById("v-no-config"),
-    document.getElementById("c-no-config"),
-    document.getElementById("g-no-config"),
-    ];
-    pageBlockers.map((e) => {e.className = "no-access-bg hidden"});
-    // make sure the underlying pages get loaded when blockers are removed
     refreshPageContent();
 }
 
 // returns a promise that resolves to a string representing user selected JSON data.
 function filePickerButtonJSON() {
-    // allow user to upload multiple files of type CSV.
+    // allow user to upload a single JSON file.
     const options = {
         types: [
           {
@@ -177,5 +192,5 @@ function filePickerButtonJSON() {
     // the bad tingling is getting a little quieter
     return showOpenFilePicker(options)
     .then((arr) => arr[0].getFile())
-    .then((f) => f.text());
+    .then((f) => {SUGGESTED_SAVE_FILE_NAME = f.name.slice(0, -5); return f.text()});
 }

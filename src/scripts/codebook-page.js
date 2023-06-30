@@ -1,45 +1,30 @@
+function initCodebookPage() {
+    CB_LIST = new CustomList(
+        document.getElementById("c-var-list"),
+        [undefined, cItemDeleted, cItemSelected, cItemDeselected]
+    );
+}
+
 function loadCodebookPage() {
     // merged df already created if possible
-    // check that codebook is loaded
-    CODEBOOK_SELECTED = -1;
-    selectVariable("ajkhsfdglkjdfgsldfgsdwassadf");
-    if (!checkWorkspaceLoaded()) return;
+
+    cItemDeselected(); //hides variable info tab if open
     if (!checkConfigLoaded()) return;
     populateVariableList();
     populateAddDatalist();
 }
-
-function populateVariableList() {
-    // get var list from DF
+function cAddVisualElement(v) {
     const workspaceVarList = DF.getColumnList();
-
-    // get var list from codebook
-    const codebookVarList = CODEBOOK[0];
-
+    CB_LIST.addItem(-1, v, undefined, workspaceVarList.includes(v) ? undefined: "Variable not loaded in workspace");
+}
+function populateVariableList() {
     // add all variables from codebook to variable list.
     // if the variable isn't in the workspace, add the warning symbol.
-    let varList = document.getElementById('c-var-list');
-    let contents ="";
-    for (const variable of codebookVarList) {
-        contents += getVarListElementString(variable);
+    CB_LIST.clear();
+    for (const v of CODEBOOK[0]) {
+        cAddVisualElement(v);
     }
-    varList.innerHTML = contents;
-}
-function getVarListElementString(variable) {
-    const workspaceVarList = DF.getColumnList();
-    function addWarningIfNeeded(variable) {
-        if (!workspaceVarList.includes(variable)) {
-            // add warning symbol
-            return "<img title='Variable not loaded in workspace' class='d-icon' src='src/assets/triangle-warning.svg'/>";
-        }
-        return "";
-    }
-    return `<div class="c-list-item" onclick="selectVariable('${variable}')">
-                <p>${addWarningIfNeeded(variable)}${variable}</p>
-                    <button style="border:none;cursor:pointer;background-color:inherit" onclick="removeVariable(event, '${variable}')">
-                    <img src="src/assets/cross-red.svg" class="d-icon" />
-                </button>
-            </div>`
+    
 }
 function populateAddDatalist() {
     const workspaceVarList = DF.getColumnList();
@@ -64,8 +49,8 @@ function addVariable(name) {
     // add visual element
     // add to codebook
     // remove from add datalist
-    if (CODEBOOK[0].includes(name)) return -1;
-    document.getElementById('c-var-list').innerHTML += getVarListElementString(name);
+    if (CODEBOOK[0].includes(name)) {customAlert(`${name} is already taken.`); return -1;};
+    cAddVisualElement(name);
     CODEBOOK[0].push(name);
     CODEBOOK[1].push("none");
     CODEBOOK[2].push({});
@@ -75,25 +60,26 @@ function addVariable(name) {
     setUnsavedChanges();
 }
 
-function removeVariable(event, name) {
-    // remove visual
-    event.srcElement.parentElement.parentElement.remove();
-    // remove from codebook
-    const index = CODEBOOK[0].findIndex((e) => e === name);
+function cItemDeleted(list, index, deletedItem) {
     if (index !== -1) {
         CODEBOOK[0].splice(index, 1);
         CODEBOOK[1].splice(index, 1);
         CODEBOOK[2].splice(index, 1);
     }
-    // unselect if was selected
-    if (CODEBOOK_SELECTED === name) {
-        CODEBOOK_SELECTED = -1;
-        hideVarInfo();
-    }
     // add to datalist
-    document.getElementById('c-add-datalist').innerHTML += `<option>${name}</option>`;
+    document.getElementById('c-add-datalist').innerHTML += `<option>${deletedItem.selfText.innerText}</option>`;
     setUnsavedChanges();
 }
+
+function cItemSelected(list, index) {
+    document.getElementById("c-var-info").className = "c-column";
+    setConversionTable();
+}
+
+function cItemDeselected() {
+    document.getElementById("c-var-info").className = "c-column invisible";
+}
+
 function checkAddAllVariables() {
     globalWarningPopup("Add All Variables?", `Auto-adds all variables detected in the workspace to the current codebook. This action will add ${document.getElementById('c-add-datalist').children.length} variables to the codebook and can't be undone.`, addAllVariables, () => 0);
 }
@@ -115,36 +101,8 @@ function removeAllVariables() {
     populateAddDatalist();
     setUnsavedChanges();
 }
-
-// highlight a variable from the list and set the variable info to match
-function selectVariable(name) {
-    for (const listItem of document.getElementById('c-var-list').children) {
-        if (listItem.getElementsByTagName("p")[0].innerText === name) {
-            if (CODEBOOK_SELECTED === name) {
-                CODEBOOK_SELECTED = -1;
-                listItem.className = "c-list-item";
-                hideVarInfo();
-            } else {
-                listItem.className = "c-list-item c-selected";
-                CODEBOOK_SELECTED = name;
-                setConversionTable();
-                showVarInfo();
-            }
-        } else {
-            listItem.className = "c-list-item"
-        }
-        
-    }
-}
-
-function showVarInfo() {
-    document.getElementById("c-var-info").className = "c-column";
-}
-function hideVarInfo() {
-    document.getElementById("c-var-info").className = "c-column invisible";
-}
 function conversionTableHasData() {
-    const index = CODEBOOK[0].findIndex((e) => e === CODEBOOK_SELECTED);
+    const index = CODEBOOK[0].findIndex((e) => e === CB_LIST.getElementText(CB_LIST.getSelected()));
     if (CODEBOOK[1][index] == "range" && (CODEBOOK[2][index]["min"] != 0 || CODEBOOK[2][index]["max"] != 0)) {
         return true;
     }
@@ -157,14 +115,14 @@ function conversionTableHasData() {
 function checkChangeConversionType() {
     if (conversionTableHasData()) {
         globalWarningPopup("Change Conversion Type?", "This will delete the current conversion table and cannot be undone. Proceed?",
-            changeConversionType, setConversionTable);
+            () => {changeConversionType(document.getElementById("c-conversion-type").value)}, setConversionTable);
         return;
     }
     changeConversionType(document.getElementById("c-conversion-type").value);
 }
 function changeConversionType(conv) {
     // find codebook index
-    const index = CODEBOOK[0].findIndex((e) => e === CODEBOOK_SELECTED);
+    const index = CODEBOOK[0].findIndex((e) => e === CB_LIST.getElementText(CB_LIST.getSelected()));
     clearConversionTable();
     switch (conv) {
         case "range":
@@ -233,7 +191,7 @@ function removeConvPair(e) {
 
 function saveConversionTable() {
     // find index of codebook that is being modified
-    const index = CODEBOOK[0].findIndex((e) => e === CODEBOOK_SELECTED);
+    const index = CB_LIST.getSelected()
     // make dictionary out of conversion table contents
     inputElements = document.getElementById("c-conv-table").getElementsByTagName("input");
     inputValues = [];
@@ -255,7 +213,7 @@ function saveConversionTable() {
 }
 
 function setConversionTable() {
-    const index = CODEBOOK[0].findIndex((e) => e === CODEBOOK_SELECTED);
+    const index = CB_LIST.getSelected();
     const convType = CODEBOOK[1][index];
     // set the conversion table display to match the correct stored value.
     document.getElementById("c-conversion-type").value = convType;
@@ -272,7 +230,7 @@ function setConversionTable() {
 }
 
 function newEntryButton() {
-    const index = CODEBOOK[0].findIndex((e) => e === CODEBOOK_SELECTED);
+    const index = CB_LIST.getSelected()
     if (CODEBOOK[1][index] === "convert") {
         addConvPair();
     } else {
@@ -281,7 +239,7 @@ function newEntryButton() {
 }
 
 function autoFillButton() {
-    const index = CODEBOOK[0].findIndex((e) => e === CODEBOOK_SELECTED);
+    const index = CB_LIST.getSelected()
     if (!checkWorkspaceLoaded()) {customAlert("Auto filling conversion table requires data files to be uploaded."); return;}
     if (CODEBOOK[1][index] === "none") {
         customAlert("Conversion type 'None' does not support auto fill.");
@@ -294,8 +252,8 @@ function autoFillButton() {
     }
 }
 function autoFillConversionTable() {
-    const index = CODEBOOK[0].findIndex((e) => e === CODEBOOK_SELECTED);
-    const colData = DF.valueCount(CODEBOOK_SELECTED);
+    const index = CB_LIST.getSelected()
+    const colData = DF.valueCount(CB_LIST.getElementText(CB_LIST.getSelected()));
     if (CODEBOOK[1][index] === 'range') {
         // find min and max and set values in codebook
         let min = Infinity;

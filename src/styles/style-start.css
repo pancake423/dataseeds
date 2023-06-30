@@ -1,0 +1,52 @@
+#start-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, var(--color-primary) 0%,var(--color-background) 30%, var(--color-accent) 70%, var(--color-dark) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition-duration: var(--global-transition-duration);
+}
+#start-title, #start-descr, .start-button {
+    text-align: center;
+    user-select: none;
+}
+#start-title {
+    font-size: 4em;
+    margin: 0;
+}
+#start-descr {
+    font-size: 1.5em;
+}
+#start-button-bar {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 7em;
+}
+#start-help-link {
+    position: absolute;
+    right: 2em;
+    bottom: 2em;
+    font-size: 1.25em;
+    text-decoration: none;
+}
+.start-icon {
+    width: 0.75em;
+    height: 0.75em;
+}
+.start-button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0);
+}
+.start-button-icon {
+    width: 5em;
+    height: 5em;
+}

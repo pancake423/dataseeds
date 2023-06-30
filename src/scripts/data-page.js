@@ -1,4 +1,37 @@
-// handle file drop 
+/**
+ * sets up DATA_FILE_LIST to point to a CustomList object
+ */
+function initDataFilesPage() {
+    DATA_FILE_LIST = new CustomList(
+        document.getElementById("d-file-list"),
+        [undefined, fItemDeleted]
+    );
+}
+/**
+ * updates the contents of DATA_FILE_LIST (display list for files loaded) to reflect the contents of WORKSPACE (data list)
+ */
+function refreshFileList() {
+    DATA_FILE_LIST.clear();
+    for (key in WORKSPACE) {
+        addFileToList(key);
+    }
+}
+/**
+ * removes a file from the visual list and data list based on name.
+ * @param {string} fname - name of file
+ */
+function removeFileFromList(fname) {
+    delete WORKSPACE[fname];
+    const search = DATA_FILE_LIST.getAllData();
+    DATA_FILE_LIST.removeElement(search.findIndex((v) => v === fname));
+    setUnsavedChanges();
+}
+
+
+/**
+ * recieves dropped files from drag and drop target. Uploads them to the workspace and visual list.
+ * @param {Event} e - fileDrop event that triggered the drop handler.
+ */
 function dropHandler(e) {
     e.preventDefault();
     const items = e.dataTransfer.items;
@@ -24,45 +57,45 @@ function dropHandler(e) {
     }
 }
 
-// stops browser default dragover behavior for file drop
+/**
+ * stops browser default dragover behavior for file drop
+ * @param {Event} e - dragover event
+ */
 function dragOverHandler(e) {
     e.preventDefault();
 }
 
-//shows a red warning box below the drag and drop area with the specified message m.
+
+/**
+ * shows a red warning box below the drag and drop area with the specified message m.
+ * @param {string} m - warning message
+ */
 function showFileWarning(m) {
     const warnElement = document.getElementsByClassName('d-warning')[0];
     warnElement.style.opacity = 1;
     warnElement.innerHTML = `<p>${m}</p>`;
     window.setTimeout(hideFileWarning, 5000);
 }
+/**
+ * hides the file warning box.
+ */
 function hideFileWarning() {
     document.getElementsByClassName('d-warning')[0].style.opacity = 0;
 }
 
-// add a visual representation of a file that is currently loaded in the workspace.
+/**
+ * add a visual representation of a file that is currently loaded in the workspace.
+ * @param {string} filename - file name
+ */
 function addFileToList(filename) {
-    listItem = document.createElement("div");
-    listItem .className = "d-list-item";
-    listItem .innerHTML = `<p style="width:80%">${filename}</p><button style="border:none;cursor:pointer;background-color:inherit" onclick="removeFileFromList('${filename}')"><img src="src/assets/cross-red.svg" class="d-icon" /></button>`;
-    document.getElementById("d-file-list").appendChild(listItem);
+    const index = DATA_FILE_LIST.addItem(-1, filename);
+    DATA_FILE_LIST.setData(index, filename);
 }
 
-function findFileListElement(filename) {
-    listItems = document.getElementsByClassName('d-list-item')
-    for (let i = 0; i < listItems.length; i++) {
-        if (listItems[i].children[0].innerHTML === filename) {
-            return listItems[i];
-        }
-    }
-}
-// remove the visual representation and underlying data for a currently loaded file.
-function removeFileFromList(filename) {
-    findFileListElement(filename).remove();
-    delete WORKSPACE[filename];
-}
-
-// adds a new file to the workspace (both a visual element and underlying data frame in WORKSPACE). Asynchronous: file display visual doesn't appear until the data has loaded.
+/**
+ * adds a new file to the workspace (both a visual element and underlying data frame in WORKSPACE). Asynchronous: file display visual doesn't appear until the data has loaded.
+ * @param {File} file - File to add to workspace
+ */
 function addFileToWorspace(file) {
     if (!(file.name in WORKSPACE)) {
         WORKSPACE[file.name] = new BudgetDataFrame();
@@ -70,20 +103,37 @@ function addFileToWorspace(file) {
             addFileToList(file.name);
             if (checkForColumnMismatch()) showMismatchedHandlePopup();
             DF_UP_TO_DATE = false;
+            setUnsavedChanges();
         });
     } else {
         showFileWarning(`Duplicate file name '${file.name}' detected. File not added to workspace.`);
     }
 }
 
-// add multiple files at once.
+/**
+ * adds multiple files to the workspace at once.
+ * @param {Array<File>} fileList - list of files to add to workspace
+ */
 function addFilesToWorkspace(fileList) {
     for (const file of fileList) {
         addFileToWorspace(file)
     }
 }
 
-// called by 'Add Files' button. only compatible with chrome and edge. exact same functionality as dropHandler.
+/**
+ * callback from DATA_FILE_LIST when an item is deleted. deletes the corresponding data.
+ * @param {CustomList} [list] - the list that the event originated from
+ * @param {int} [index] - the index of the deleted item within the list
+ * @param {CustomListItem} [deletedItem] - the deleted list item itself
+ */
+function fItemDeleted(list, index, deletedItem) {
+    delete WORKSPACE[deletedItem.selfText.innerText];
+}
+
+/**
+ * called by 'Add Files' button. only compatible with chrome and edge. exact same functionality as dropHandler.
+ * allows the user to pick multiple CSV files from their machine to upload to the program.
+ */
 function filePickerButtonCSV() {
     // allow user to upload multiple files of type CSV.
     const options = {
@@ -110,7 +160,10 @@ function filePickerButtonCSV() {
         }
     });
 }
-// check that every df in the workspace has finished loading.
+/**
+ * checks to see if every uploaded file has loaded fully.
+ * @returns {boolean} whether or not the workspace is fully loaded.
+ */
 function checkWorkspaceLoaded() {
     if (Object.keys(WORKSPACE).length === 0) return false;
     for (const key in WORKSPACE) {
@@ -119,7 +172,10 @@ function checkWorkspaceLoaded() {
     return true;
 }
 
-// ensure that every column in the dataspace has matching columns. returns true if there IS column mismatch, otherwise false.
+/**
+ * ensure that every dataframe in the workspace has matching columns. (every column that exists in one df exists in every other)
+ * @returns {boolean} true if there IS column mismatch, otherwise false.
+ */
 function checkForColumnMismatch() {
     // don't check if workspace isn't fully loaded or if we've already flagged a different mode for handling mismatches.
     if (!checkWorkspaceLoaded() || COLUMN_MISMATCH_HANDLING !== 'flag') return;
@@ -138,16 +194,24 @@ function checkForColumnMismatch() {
     return false;
 }
 
-// shows the user a popup window that allows them to choose a handling mode for mismatched columns.
+/**shows the user a popup window that allows them to choose a handling mode for mismatched columns. */
 function showMismatchedHandlePopup() {
     document.getElementById("d-mismatch-popup").className = "no-access-bg shown";
 }
 
-// hide the above window.
+/**
+ * hides the mismatch handling popup window.
+ */
 function hideMismatchedHandlePopup() {
     document.getElementById("d-mismatch-popup").className = "no-access-bg hidden";
 }
 
+/**
+ * sets COLUMN_MISMATCH_HANDLING based on the option selected.
+ * merge and drop correspond to BudgetDataFrame.append() flag modes (see that documentation).
+ * remove simply drops data files until there isn't column mismatch anymore.
+ * @param {string} option - merge, drop, or remove. 
+ */
 function handleMismatchPopupAction(option) {
     switch (option) {
         case 'merge':
@@ -164,9 +228,10 @@ function handleMismatchPopupAction(option) {
             break
     }
 }
-
+/**
+ * remove files in reverse order that they were uploaded in (delete most recent file first) until there is no longer a column mismatch.
+ */
 function removeMismatchedDataFiles() {
-    // remove files in reverse order that they were uploaded in (delete most recent file first) until there is no longer a column mismatch.
     const keys = Object.keys(WORKSPACE);
     for (const key of keys.reverse()) {
         removeFileFromList(key);

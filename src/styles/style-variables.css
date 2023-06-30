@@ -1,0 +1,18 @@
+#v-var-list {
+    width: 45%;
+    height: 80%;
+}
+
+.v-button {
+    padding: 0.5em;
+    background-color: var(--color-background);
+    border-radius: var(--round-amt);
+    font-size: 1em;
+    height: 2em;
+    border: none;
+    cursor: pointer;
+    transition-duration: var(--global-transition-duration);
+}
+.v-button:hover {
+    padding-inline: 1em;
+}

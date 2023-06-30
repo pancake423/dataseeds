@@ -1,3 +1,8 @@
+@font-face {
+    font-family: "Quicksand";
+    src: url("Quicksand-Regular.ttf");
+}
+
 :root {
     --page-margin: 1em;
     --tab-bar-height: 5vh;
@@ -34,7 +39,7 @@ body {
     height: calc(100vh - 2 * var(--page-margin));
     margin: var(--page-margin);
     background-color: var(--color-background);
-    font-family:'Segoe UI';
+    font-family: 'Quicksand';
 }
 #tab-bar {
     width: 100%;

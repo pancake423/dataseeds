@@ -1,24 +1,4 @@
 /**
- * Opens a blank report in a new tab. Registers a temporary event listener that is used to send data to the report tab once it's loaded.
- * 
- * @param {BudgetDataFrame} DF - Dataframe with all data to be included in the report
- * @param {Array<Array>} CODEBOOK - Codebook describing how to decode each column of the data frame
- * @param {Array<Array>} REPORT - Report structure: how to lay out and display each variable.
- */
-function openReport(DF, CODEBOOK, REPORT) {
-    const reportWindow = window.open(
-        `src/report.html`,//URL
-        "_blank" //open in new tab
-    );
-    function postReportOnLoad(e) {
-        if (e.data === "r") {
-            reportWindow.postMessage(generateReportObject(DF, CODEBOOK, REPORT, getReportSettings()), "*");
-        }
-        window.removeEventListener("message", postReportOnLoad);
-    }
-    window.onmessage = postReportOnLoad;
-}
-/**
  * makes a ReportSettings object based on the values of the inputs in the 'Generate Report' column.
  * @returns {ReportSettings}
  */
@@ -28,6 +8,7 @@ function getReportSettings() {
         missingValue: document.getElementById("r-display-missing").value,
         range: document.getElementById("r-report-unmatched-data").checked ? true : false,
         rangeValue: document.getElementById("r-display-unmatched").value,
+        footer: document.getElementById("r-report-footer").checked ? true : false,
     }
 }
 
@@ -37,6 +18,7 @@ function getReportSettings() {
  * @property {string} missingValue - value to list for missing data
  * @property {boolean} range - whether or not to report out-of-range or unmatched data
  * @property {string} rangeValue - value to list for out-of-range data
+ * @property {boolean} footer - if true, report missing/out of range data in the graph footer rather than as a data point.
  */
 /**
  * takes in a dataframe containing raw data, a codebook describing how to encode that data, and a report variable describing how to display the data.
@@ -92,7 +74,7 @@ function generateReportObject(DF, CODEBOOK, REPORT, settings) {
                     if (x[i] in CODEBOOK[2][codebookIndex]) {
                         x[i] = CODEBOOK[2][codebookIndex][x[i]];
                     } else {
-                        if (range) {
+                        if (settings.range) {
                             if (x.includes(settings.rangeValue)) {
                                 y[x.findIndex((v) => v === settings.rangeValue)] += y[i];
                                 x.splice(i, 1);
@@ -110,8 +92,6 @@ function generateReportObject(DF, CODEBOOK, REPORT, settings) {
                 }
                 break;
         }
-        // handle blank values **TODO: make this dynamic**
-        // TODO: handle out-of-range (range type) and unmatched (convert type) data
         for (let i = 0; i < x.length; i++) {
             if (x[i] === "") {
                 if (settings.missing) {
@@ -123,17 +103,53 @@ function generateReportObject(DF, CODEBOOK, REPORT, settings) {
                 }
             }
         }
+        if (settings.footer) {
+            // remove <blank> and <out of range> from data set
+            // new footer text
+            let newFooterText = item[6];
+            for (let i = 0; i < x.length; i++) {
+                if (x[i] === settings.missingValue) {
+                    if (!(newFooterText === "" || newFooterText === undefined)) {
+                        newFooterText += "<br>";
+                    }
+                    newFooterText += `${settings.missingValue}: ${y[i]} entries.`;
+                    x.splice(i, 1);
+                    y.splice(i, 1);
+                    i--;
+                } else if (x[i] === settings.rangeValue) {
+                    if (!(newFooterText === "" || newFooterText === undefined)) {
+                        newFooterText += "<br>";
+                    }
+                    newFooterText += `${settings.rangeValue}: ${y[i]} entries.`;
+                    x.splice(i, 1);
+                    y.splice(i, 1);
+                    i--;
+                }
+            }
 
-        out.push([
-            x,// x array
-            y,// y array
-            item[1], // graph type
-            item[2],// title
-            item[3],// subtitle
-            item[4],// xaxis label
-            item[5],// yaxis label
-            item[6],// footer
-        ])
+
+            out.push([
+                x,// x array
+                y,// y array
+                item[1], // graph type
+                item[2],// title
+                item[3],// subtitle
+                item[4],// xaxis label
+                item[5],// yaxis label
+                newFooterText
+            ]);
+        } else {
+            out.push([
+                x,// x array
+                y,// y array
+                item[1], // graph type
+                item[2],// title
+                item[3],// subtitle
+                item[4],// xaxis label
+                item[5],// yaxis label
+                item[6],// footer
+            ]);
+        }
     }
     return out
 }

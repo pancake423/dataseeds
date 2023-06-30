@@ -7,9 +7,10 @@ https://plotly.com/javascript/plotlyjs-function-reference/
 
 /** @const {int} BAR_WIDTH_THRESHOLD - number of bars required to make a bar plot wide */
 const BAR_WIDTH_THRESHOLD = 4;
-
 /** @const {int} SCATTER_LINE_WIDTH_THRESHOLD - number of elements required to make a scatter or line plot wide */
 const SCATTER_LINE_WIDTH_THRESHOLD = 15;
+/**@const {int} TRUNCATION_THRESHOLD - threshold for truncating a graph or table (too many elements to display) */
+const TRUNCATION_THRESHOLD = 30;
 
 /**width of wide graphs (in pixels) */
 const GRAPH_WIDTH_WIDE = 600;
@@ -100,7 +101,7 @@ function addHeader(parent, title, subtitle) {
  * @param {Node} parent - element to append the graph to.
  * @param {Array<string|number>} x - array of x values to graph
  * @param {Array<number} y  - array of y values to graph
- * @param {string} type - pie, bar, scatter, or line. any other values will result in an error
+ * @param {string} type - pie, bar, scatter, table,  or line. any other values will result in an error
  * @param {string} title - title of graph
  * @param {string} subtitle - subtitle of graph
  * @param {string} xlabel - graph x axis label text
@@ -116,17 +117,25 @@ function addGraph(parent, x, y, type, title, subtitle, xlabel, ylabel, footer) {
     const graphBody = document.createElement("div");
 
     const titleElement = document.createElement("h2");
-    titleElement.innerText = title ===  undefined ? "":title;
+    titleElement.innerHTML = title ===  undefined ? "":title;
 
     const subtitleElement = document.createElement("p");
-    subtitleElement.innerText = subtitle ===  undefined ? "":subtitle;
+    subtitleElement.innerHTML = subtitle ===  undefined ? "":subtitle;
+
+    let xTruncated, yTruncated, newFooter;
+    if (type === "scatter" || type === "line") {
+        [xTruncated, yTruncated, newFooter] = [x, y, footer];
+    } else {
+        [xTruncated, yTruncated, newFooter] = truncateData(TRUNCATION_THRESHOLD, x, y, footer);
+    }
 
     const footerElement = document.createElement("p");
-    footerElement.innerText = footer ===  undefined ? "":footer;
+    footerElement.innerHTML = newFooter ===  undefined ? "":newFooter;
+    footerElement.className = "footer-text";
 
     let data = [{
-        x: x,
-        y: y,
+        x: xTruncated,
+        y: yTruncated,
         text: y.map(String),
         textposition: 'auto',
     }];
@@ -191,10 +200,41 @@ function addGraph(parent, x, y, type, title, subtitle, xlabel, ylabel, footer) {
     graphContainer.appendChild(subtitleElement);
     graphContainer.appendChild(graphBody);
     graphContainer.appendChild(footerElement);
-
-    Plotly.newPlot(graphBody, data, layout, {staticPlot: true}); //relies on plotly.js
+    
+    if (type === "table") {
+        graphBody.appendChild(makeTable(xTruncated, yTruncated, xlabel, ylabel));
+    } else {
+        Plotly.newPlot(graphBody, data, layout, {staticPlot: true}); //relies on plotly.js
+    }
 
     parent.appendChild(graphContainer);
+}
+/**
+ * returns a 2 x ? table containing the data in x and y, with xlabel and ylabel as column headers.
+ * @param {Array<number|string>} x - array of x-values
+ * @param {Array<number|string>} y -array of y-values
+ * @param {string} xlabel - x column header
+ * @param {string} ylabel - y column header
+ * @returns {Node} populated HTML table
+ */
+function makeTable(x, y, xlabel, ylabel) {
+    const out = document.createElement("table");
+    out.innerHTML = `<tr><th>${xlabel}</th><th>${ylabel}</th></tr>`;
+    for (let i = 0; i < x.length; i++) {
+        const row = document.createElement("tr");
+        
+        const xentry = document.createElement("td");
+        xentry.innerText = x[i];
+
+        const yentry = document.createElement("td");
+        yentry.innerText = y[i];
+
+        row.appendChild(xentry);
+        row.appendChild(yentry);
+
+        out.appendChild(row);
+    }
+    return out;
 }
 
 /**
@@ -213,4 +253,22 @@ function setPageTitle(reportData) {
 
     }
     document.title = "Report";
+}
+/**
+ * 
+ * @param {int} threshold - number of items that can be included in x and y before the data set is truncated.
+ * @param {Array<number|string>} x - x data
+ * @param {Array<number|string>} y - y data
+ * @param {string} footer - current footer of graph
+ * @returns {Array<Array<number|string>, Array<number|string>, string>} [truncated x data, truncated y data, new footer text]
+ */
+function truncateData(threshold, x, y, footer) {
+    if (x.length > threshold) {
+        return [
+            x.slice(0, threshold),
+            y.slice(0, threshold),
+            ((footer === undefined || footer === "") ? "" : (footer + "<br>")) + `Output truncated for brevity. The first ${threshold} data points are shown, while the remaining ${x.length - threshold} are hidden.`
+        ];
+    }
+    return [x, y, footer];
 }
