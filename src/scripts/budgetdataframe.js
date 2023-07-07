@@ -187,7 +187,7 @@ class BudgetDataFrame {
      * @returns 0
      */
     dropRow(row) {
-        this.#data.splice(r, 1);
+        this.#data.splice(row, 1);
         this.numRows--;
         return 0;
     }
@@ -288,7 +288,10 @@ class BudgetDataFrame {
     getData() {
         return this.#data.map((r) => r.map((i) => i))
     }
-
+    /**
+     * returns the data frame's instance properties as a plain JS object along with 'dtype': BudgetDataFrame
+     * @returns {Object}
+     */
     exportAsObject() {
         return {
             "dtype": "BudgetDataFrame",
@@ -298,6 +301,10 @@ class BudgetDataFrame {
             "numRows": this.numRows
         }
     }
+    /**
+     * loads a data frame object export into the current data frame.
+     * @param {Object} obj - object returned by BudgetDataFrameInstance.exportAsObject()
+     */
     importFromObject(obj) {
         // type checking
         if (!(obj instanceof Object)) throw TypeError(`Cannot import from '${obj}': not of type Object.`);
@@ -311,6 +318,97 @@ class BudgetDataFrame {
             this.numColumns = this.#data[0].length;
             this.numRows = this.#data.length;
         }
-
+    }
+    /**
+     * sets the value of a single cell of the data frame.
+     * @param {} columnIndexOrName 
+     * @param {*} row 
+     * @param {*} value 
+     */
+    set(columnIndexOrName, row, value) {
+        const columnIndex = (typeof columnIndexOrName === 'number') ? columnIndexOrName : this.getColumnIndex(columnIndexOrName);
+        this.#data[columnIndex][row] = value;
+    }
+    /**
+     * filters a data frame according to the following parameters, and returns the data frame containing all entries
+     * from the parent that pass the filter.
+     * @param {string|int} columnIndexOrName - name or index number of the column to get comparison values from.
+     * @param {string} comparison - type of comparison. '>', '<', '=', '>=', '<=', '!=', 'unique'. unique only keeps the first row to have a certain value in the column.
+     * @param {string|number} value - value to compare to. strings only support = and != comparison types.
+     */
+    filter(columnIndexOrName, comparison, value) {
+        const out = this.copy();
+        const filterColumn = this.getColumn(columnIndexOrName);
+        switch (comparison) {
+            case '=':
+                for (let i = 0; i < filterColumn.length; i++) {
+                    if (String(filterColumn[i]) !== String(value)) {
+                        out.dropRow(i);
+                        filterColumn.splice(i, 1);
+                        i--;
+                    }
+                }
+                break;
+            case '!=':
+                for (let i = 0; i < filterColumn.length; i++) {
+                    if (String(filterColumn[i]) === String(value)) {
+                        out.dropRow(i);
+                        filterColumn.splice(i, 1);
+                        i--;
+                    }
+                }
+                break;
+            case ">":
+                for (let i = 0; i < filterColumn.length; i++) {
+                    if (Number(filterColumn[i]) <= Number(value)) {
+                        out.dropRow(i);
+                        filterColumn.splice(i, 1);
+                        i--;
+                    }
+                }
+                break;
+            case "<":
+                for (let i = 0; i < filterColumn.length; i++) {
+                    if (Number(filterColumn[i]) >= Number(value)) {
+                        out.dropRow(i);
+                        filterColumn.splice(i, 1);
+                        i--;
+                    }
+                }
+                break;
+            case ">=":
+                for (let i = 0; i < filterColumn.length; i++) {
+                    if (Number(filterColumn[i]) < Number(value)) {
+                        out.dropRow(i);
+                        filterColumn.splice(i, 1);
+                        i--;
+                    }
+                }
+                break;
+            case "<=":
+                for (let i = 0; i < filterColumn.length; i++) {
+                    if (Number(filterColumn[i]) > Number(value)) {
+                        out.dropRow(i);
+                        filterColumn.splice(i, 1);
+                        i--;
+                    }
+                }
+                break;
+            case "unique":
+                let found = [];
+                for (let i = 0; i < filterColumn.length; i++) {
+                    if (found.includes(filterColumn[i])) {
+                        out.dropRow(i);
+                        filterColumn.splice(i, 1);
+                        i--;
+                    } else {
+                        found.push(filterColumn[i])
+                    }
+                }
+                break;
+            default:
+                throw Error(`Unknown comparison type '${comparison}'`);
+        }
+        return out;
     }
 }

@@ -16,6 +16,7 @@ let UNSAVED_CHANGES = false; // whether or not the current config has unsaved ch
 
 let DF = new BudgetDataFrame(); //data frame containing combined user entries
 let DF_UP_TO_DATE = false; // used to track whether or not DF needs to be updated (to save on computation)
+let DF_CUSTOM = new BudgetDataFrame(); //data frame used to store columns calculated from CUSTOM_VARIABLES
 
 //CustomList object bindings
 let DATA_FILE_LIST;
@@ -70,7 +71,6 @@ function globalWarningPopup(title, text, okCallback, cancelCallback) {
 function refreshPageContent() {
     refreshFileList();
     loadCodebookPage();
-    initCustomVariablesPage();
     loadReportsPage();
 }
 

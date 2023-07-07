@@ -1,0 +1,67 @@
+#v-var-column {
+    width: 60%;
+}
+#v-descr-column {
+    width: 40%;
+}
+#page-custom {
+    display: flex;
+    flex-direction: row;
+    align-items: space-evenly;
+}
+#v-var-list {
+    width: 80%;
+    height: 70vh;
+    margin-bottom: var(--page-margin);
+}
+#v-type-bar {
+    width: 30%;
+}
+#v-edit-container {
+    width: 50%;
+    height: 90%;
+    background-color: var(--color-primary);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: var(--round-amt);
+    border-top: 3px solid var(--color-accent);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: var(--page-margin);
+    cursor: default;
+    align-items: center;
+}
+#v-mode-settings-box {
+    position: absolute;
+    width: 80%;
+    height: 60%;
+    background-color: var(--color-background);
+    border-radius: var(--round-amt);
+    border-top: 3px solid var(--color-accent);
+    top: 30%;
+    left: 10%;
+}
+#v-bottom-button-bar {
+    position: absolute;
+    left: 50%;
+    bottom: var(--page-margin);
+    transform: translateX(-50%);
+    width: 40%;
+}
+.v-list-item {
+    display: flex;
+    justify-content: space-evenly;
+}
+.v-list-item > p {
+    width: 33%;
+    text-align: center;
+}
+#v-histogram-list, #v-merge-list, #v-combine-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}

@@ -275,6 +275,13 @@ class CustomList {
     setElementIcon(index, path) {
         this.#items[index].setIcon(path);
     }
+    /**
+     * returns the length of the custom list.
+     * @returns {int} Number of items currently in the custom list.
+     */
+    getLength() {
+        return this.#items.length;
+    }
 }
 /**sub-class used by CustomList for each item. */
 class CustomListItem {
@@ -291,7 +298,7 @@ class CustomListItem {
         this.selfDiv = document.createElement("div");
         this.selfDiv.className = "c-list-item";
         this.parentList = parentList;
-        this.data = {};
+        this.data = undefined;
         if (selectable) this.selfDiv.onclick = () => parentList.eventCallback(this.id, "s");
         if (rearrangable) {
             this.selfDiv.ondragover = (e) => {e.preventDefault()};
@@ -305,6 +312,10 @@ class CustomListItem {
 
         this.selfText = document.createElement("p");
         this.selfDiv.appendChild(this.selfText);
+
+        if (!selectable) {
+            this.selfDiv.style.cursor = "default";
+        }
 
         if (removable) {
             this.selfRemoveButton = document.createElement("button");
@@ -361,7 +372,8 @@ class CustomListItem {
         const button = document.createElement("button");
         if (b.type) {
             // normal button
-            button.className = "v-button";
+            button.className = "c-button";
+            button.style.backgroundColor = "var(--color-background)";
             button.innerHTML = b.text;
         } else {
             // icon button

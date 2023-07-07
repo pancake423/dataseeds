@@ -9,14 +9,16 @@
     <script src="src/scripts/customlist.js" type="text/javascript"></script>
     <script src="src/scripts/variables-page.js" type="text/javascript"></script>
     <script src="src/scripts/start-screen.js" type="text/javascript"></script>
+    <script src="src/scripts/datafilter.js" type="text/javascript"></script>
     <script src="src/scripts/index.js" type="text/javascript"></script>
     
     <link href="src/styles/style-data.css" rel="stylesheet"/>
     <link href="src/styles/style-codebook.css" rel="stylesheet"/>
     <link href="src/styles/style-reports.css" rel="stylesheet"/>
     <link href="src/styles/style-main.css" rel="stylesheet"/>
-    <link href="src/styles/style-variables.css" rel="stylesheet"/>
+    <link href="src/styles/datafilter.css" rel="stylesheet"/>
     <link href="src/styles/style-start.css" rel="stylesheet"/>
+    <link href="src/styles/style-custom.css" rel="stylesheet"/>
 
     <link rel="icon" type="image/x-icon" href="src/assets/coffee-beans.svg">
     <title>DataSeeds</title>
@@ -48,7 +50,7 @@
                 </div>
                 <div class="d-container">
                     <h2 class="d-header">File List</h2>
-                    <p>As you add files to the current workspace, they will appear below. click the <img src="src/assets/cross-red.svg" class="d-icon" /> beside a file name to remove it.</p>
+                    <p>As you add files to the current workspace, they will appear below. Click the <img src="src/assets/cross-red.svg" class="d-icon" /> beside a file name to remove it.</p>
                     <div class="d-spacer"></div>
                     <div id="d-file-list" title="File list"></div>
                 </div>
@@ -99,7 +101,59 @@
         </div>
         <div class="page hidden">
             <div id="page-custom">
-                <div id="v-var-list" class="c-column c-manage-box"></div>
+                <div id="v-popup-box" class = "no-access-bg hidden">
+                    <div id="v-edit-container">
+                        <h2>Edit Custom Variable</h2>
+                        <div class="c-horiz-bar" id ="v-type-bar">
+                            <label>Name: </label>
+                            <input class="c-input" id="v-name-selection">
+                            <label>Type: </label>
+                            <select class ="c-input" id="v-type-selection" onchange="showEditPopupSettings()">
+                                <option value="histogram">Histogram</option>
+                                <option value="combine">Combine</option>
+                                <option value="merge">Merge</option>
+                            </select>
+                        </div>
+                        <div id="v-mode-settings-box" class="c-column">
+                            <h2 id="v-mode-settings-title">Histogram Bins</h2>
+                            <div class="c-horiz-bar">
+                                <button class="c-button">add</button>
+                                <button class="c-button">remove</button>
+                                <button class="c-button">clear</button>
+                            </div>
+                            <ul id="v-histogram-list">
+                                <li class="v-list-item">
+                                    <p>min</p><p>max</p><p>bin name</p>
+                                </li>
+                            </ul>
+                            <ul id="v-combine-list">
+                                <li class="v-list-item">
+                                    <p>source</p>
+                                </li>
+                            </ul>
+                            <ul id="v-merge-list">
+                                <li class="v-list-item">
+                                    <p>source</p><p>comparison</p><p>value</p><p>bin name</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="c-horiz-bar" id ="v-bottom-button-bar">
+                            <button class="c-button" style="background-color:var(--color-background);">Cancel</button>
+                            <button class="c-button">Submit</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="v-descr-column" class="c-column">
+                    <h2>Custom Variables</h2>
+                    <p>Custom Variables allow you to do more advanced data operations than the standard conversion table. Click the button below to create a new custom variable. Custom variables pull data from standard codebook variables. Merge allows you to pull data from multiple related variables and report a single outcome. Combine allows you to report all values from multiple variables at once. Histogram allows you to convert range data into a histogram.</p>
+                    <div class="d-spacer"></div>
+                    <button class="r-chunky-button" onclick="addCustomVariableButton()">Add</button>
+                </div>
+                <div id="v-var-column" class="c-column">
+                    <h2>Variable List</h2>
+                    <div id="v-var-list" class="c-column c-manage-box"></div>
+                    <button class="c-button" onclick="clearCustomVariablesButton()">clear all</button>
+                </div>
             </div>
         </div>
         <div class="page hidden">

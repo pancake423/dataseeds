@@ -117,12 +117,6 @@ body {
 .bg {
     background-color: var(--color-background);
 }
-.red {
-    color: red;
-}
-.green {
-    color: green;
-}
 .tab {
     width: var(--tab-width);
     height: 100%;

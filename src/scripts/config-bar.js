@@ -72,6 +72,7 @@ function newBlankConfig() {
     CUSTOM_VARIABLES = [[], [], []];
     REPORT = [];
     WORKSPACE = [];
+    loadCustomVariableData();
     setNoUnsavedChanges();
     hideConfigPageBlockers();
 }
@@ -110,7 +111,8 @@ function addExistingConfig(callback) {
         CODEBOOK = config['codebook'];
         CUSTOM_VARIABLES = config['custom'];
         REPORT = config['report'];
-        parseWorkspaceObject(config['workspace'])
+        parseWorkspaceObject(config['workspace']);
+        loadCustomVariableData();
         setNoUnsavedChanges();
         hideConfigPageBlockers();
         if (callback) {
@@ -165,6 +167,7 @@ function parseWorkspaceObject(w) {
         WORKSPACE[key] = new BudgetDataFrame();
         WORKSPACE[key].importFromObject(w[key]);
     }
+    createMergedDF();
 }
 function checkConfigLoaded() {
     return CODEBOOK.length === 3 && CUSTOM_VARIABLES.length == 3;

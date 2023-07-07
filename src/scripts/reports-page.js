@@ -16,6 +16,9 @@ function populateDataSourceDropdown() {
     for (const varName of CODEBOOK[0]) {
         contents += `<option value='${varName}'>`
     }
+    for (const varName of CUSTOM_VARIABLES[0]) {
+        contents += `<option value='${varName}'>`
+    }
     document.getElementById("r-source-datalist").innerHTML = contents;
 }
 /**

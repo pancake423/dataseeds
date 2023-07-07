@@ -1,0 +1,20 @@
+This is the first large project I've ever made (more than 1000 lines of code).
+It definitely has some ... interesting ... code in it as a result.
+there are a lot of things that I would do differently if I could start over or reset, that I don't have time to do during my internship.
+I experimented with a lot of different styles for different parts of the program, including:
+ * traditional procedural programming (especially when I couldn't figure out how to solve a problem in a different way) with global variables and functions modifying them.
+ * purer functional programming, where each function's inputs and outputs are clearly defined and not mutated. I like this a lot more.
+ * Object-oriented/class based programming. I realized eventually that I was just making budget React, and I definitely see the appeal of React/JSX to program in this style.
+ 
+ * Event-driven programming
+ * asynchronous programming with callbacks
+ * asynchronous programming with Promise
+
+ Once I got a better grip on promises and how they work, I really enjoyed using them. Traditional callbacks are so much less readable. Async/Await is still a bit mysterious to me.
+ As a result of all the different styles I experimented with, and the fact that I was learning as I coded, the program is a bit of a spaghetti mess. I've tried to at least keep it well commented as a consolation.
+
+ with all that said, here's what I will keep in mind for the next large project I tackle (which will be my senior project for my bachelor's):
+
+ plan. designing a whole program one component at a time with little thought about the final product makes it hard to re-use code. Plan what the whole program will do, and create re-usable components for common elements. Honestly, make re-usable components even for elements that might only be used once.
+
+the best style for my brain is event-driven + functional. My components will be classes that store their relevant data and DOM nodes. Each component should raise events when it is interacted with (custom events). Each event can then be dealt with in a functional manner, only modifying its parent component by calling class methods when necessary.
