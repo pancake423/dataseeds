@@ -15,7 +15,7 @@
     margin-bottom: var(--page-margin);
 }
 #v-type-bar {
-    width: 30%;
+    width: 70%;
 }
 #v-edit-container {
     width: 50%;
@@ -64,4 +64,7 @@
     margin: 0;
     padding: 0;
     width: 100%;
+}
+#v-popup-box {
+    position: fixed;
 }

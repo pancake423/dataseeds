@@ -180,3 +180,89 @@ function showEditPopupSettings() {
             break;
     }
 }
+
+function clearCustomVarsPopup(type) {
+    let removeList;
+    switch (type) {
+        case "histogram":
+            removeList = document.getElementById("v-histogram-list").getElementsByTagName("li");
+            break;
+        case "combine":
+            removeList = document.getElementById("v-combine-list").getElementsByTagName("li");
+            break;
+        case "merge":
+            removeList = document.getElementById("v-merge-list").getElementsByTagName("li");
+            break;
+    }
+    for (let i = 1; i < removeList.length; i++) {
+        document.removeChild(removeList[i]);
+    }
+}
+
+function addCustomVarsElement(type) {
+    let parent;
+    let item = document.createElement("li");
+    item.className = "v-list-item";
+    switch (type) {
+        case "histogram":
+            parent = document.getElementById("v-histogram-list");
+            let min = document.createElement("input");
+            min.className = "c-input";
+            min.type = "number";
+            let max = document.createElement("input");
+            max.className = "c-input";
+            max.type = "number";
+            let binName = document.createElement("input");
+            binName.className = "c-input";
+
+            item.appendChild(min);
+            item.appendChild(max);
+            item.appendChild(binName);
+            break;
+        case "combine":
+            parent = document.getElementById("v-combine-list");
+            let src = document.createElement("li");
+            src.className = "c-input";
+            // TODO: src must be from CODEBOOK list. bind to a datalist.
+
+            item.appendChild(src);
+            break;
+        case "merge":
+            parent = document.getElementById("v-merge-list");
+            let src = document.createElement("li");
+            src.className = "c-input";
+            // TODO: src must be from CODEBOOK list. bind to a datalist.
+            let comp = document.createElement("select");
+            comp.innerHTML = "<option value='='>=</option><option value='!='>!=</option><option value='>'>&gt;</option><option value='<'>&lt;</option><option value='>='>&gt;=</option><option value='<='>&lt;=</option>";
+            comp.className = "c-input";
+            let value = document.createElement("li");
+            value.className = "c-input";
+            let binName = document.createElement("li");
+            binName.className = "c-input";
+
+            item.appendChild(src);
+            item.appendChild(comp);
+            item.appendChild(value);
+            item.appendChild(binName);
+            break;
+    }
+    parent.appendChild(item);
+}
+
+function removeCustomVarsElement(type) {
+    let removeList;
+    switch (type) {
+        case "histogram":
+            removeList = document.getElementById("v-histogram-list").getElementsByTagName("li");
+            break;
+        case "combine":
+            removeList = document.getElementById("v-combine-list").getElementsByTagName("li");
+            break;
+        case "merge":
+            removeList = document.getElementById("v-merge-list").getElementsByTagName("li");
+            break;
+    }
+    if (removeList.length > 1) {
+        document.removeChild(removeList[removeList.length - 1]);
+    }
+}

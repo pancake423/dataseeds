@@ -22,7 +22,7 @@
 ::-webkit-scrollbar {
     width: 10px;
 }
-::-webkit-scrollbar-track {
+body::-webkit-scrollbar-track {
     background: var(--color-background);
     border-radius: var(--round-amt);
 }
@@ -57,7 +57,10 @@ body {
     position: absolute;
     left: var(--page-margin);
     top: calc(var(--page-margin) + var(--tab-bar-height));
-    overflow-y:clip;
+    overflow-y:scroll;
+}
+#pagek-container::-webkit-scrollbar-track {
+    background: var(--color-primary);
 }
 #config-container {
     width: var(--config-container-width);
@@ -78,7 +81,7 @@ body {
     text-align: center;
 }
 #icon-attribution {
-    position: absolute;
+    position: fixed;
     left: var(--page-margin);
     bottom: var(--page-margin);
     font-size: 1em;
