@@ -37,8 +37,8 @@ class BudgetDataFrame {
         if (!(data instanceof Array)) throw TypeError("data passed to BudgetDataFrame must be a 2d array.");
         const nCol = columns.length;
         for (const row of data) {
-            if (!(row instanceof Array)) throw TypeError("data passed to BudgetDataFrame must be a 2d array.");;
-            if (row.length !== nCol) throw Error("the width of the 2d data array passed to BudgetDataFrame must be equal to the number of columns.");
+            if (!(row instanceof Array)) throw TypeError("data passed to BudgetDataFrame must be a 2d array.");
+            if (row.length !== nCol) throw Error(`the width of the 2d data array passed to BudgetDataFrame must be equal to the number of columns.`);
         }
         return true;
     }
@@ -55,8 +55,21 @@ class BudgetDataFrame {
             obj.#data = results.data; // array now only contains data, not headers
             obj.numColumns = obj.#data[0].length;
             obj.numRows = obj.#data.length;
+            obj.#cleanData();
 
             if (typeof callback === 'function') callback();
+        }
+    }
+    /**
+     * PapaParse will happily return arrays with incomplete rows, but that causes big problems for BudgetDataFrame. This function is used to clean up data when it loads before it can cause any harm or unexpected errors.
+     */
+    #cleanData() {
+        for (let i = 0; i < this.#data.length; i++) {
+            if (this.#data[i].length !== this.numColumns) {
+                this.#data.splice(i, 1);
+                i--;
+                this.numRows--;
+            }
         }
     }
     /**
@@ -73,7 +86,7 @@ class BudgetDataFrame {
      * @returns {BudgetDataFrame} - new data frame containing identical data
      */
     copy() {
-        return new BudgetDataFrame(this.getColumnList(), this.#data.map((r) => r.map((i) => i)))
+        return new BudgetDataFrame(this.getColumnList(), this.#data.map((r) => r.map((i) => i)));
     }
     /**
     * Appends a data frame to the current data frame.
@@ -130,6 +143,26 @@ class BudgetDataFrame {
                 outRow.push(index === -1 ? '' : row[index]);
             }
             this.addRow(outRow);
+        }
+    }
+    join(df, joinType="flag") {
+        if (joinType === "fill") {
+            while (df.numRows > this.numRows) {
+                this.addRow("");
+            }
+        }
+        console.log(df);
+        for (const col of df.getColumnList()) {
+            let columnData = df.getColumn(col);
+            if (joinType === "flag") {
+                if (columnData.length != this.numRows) throw Error("Unable to join data frames. Mismatched number of rows.");
+            }
+            if (joinType === "fill") {
+                while (columnData.length < this.numRows) {
+                    columnData.push("");
+                }
+            }
+            this.addColumn(col, columnData);
         }
     }
     /**

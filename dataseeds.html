@@ -116,7 +116,7 @@
                         </div>
                         <div id="v-mode-settings-box" class="c-column">
                             <h2 id="v-mode-settings-title">Histogram Bins</h2>
-                            <div class="c-horiz-bar">
+                            <div class="c-horiz-bar" id="v-edit-bar">
                                 <button class="c-button">add</button>
                                 <button class="c-button">remove</button>
                                 <button class="c-button">clear</button>
@@ -147,7 +147,7 @@
                     <h2>Custom Variables</h2>
                     <p>Custom Variables allow you to do more advanced data operations than the standard conversion table. Click the button below to create a new custom variable. Custom variables pull data from standard codebook variables. Merge allows you to pull data from multiple related variables and report a single outcome. Combine allows you to report all values from multiple variables at once. Histogram allows you to convert range data into a histogram.</p>
                     <div class="d-spacer"></div>
-                    <button class="r-chunky-button" onclick="addCustomVariableButton()">Add</button>
+                    <button class="c-button" onclick="addCustomVariableButton()">Add</button>
                 </div>
                 <div id="v-var-column" class="c-column">
                     <h2>Variable List</h2>
@@ -305,4 +305,5 @@
     <div class="d-warning hidden" id="global-warning"><p id="global-warning-text"></p></div>
     <datalist id="c-add-datalist"></datalist>
     <datalist id="r-source-datalist"></datalist>
+    <datalist id="v-source-datalist"></datalist>
 </body>

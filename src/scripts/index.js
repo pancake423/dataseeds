@@ -72,6 +72,7 @@ function refreshPageContent() {
     refreshFileList();
     loadCodebookPage();
     loadReportsPage();
+    loadCustomVariablesPage();
 }
 
 /**

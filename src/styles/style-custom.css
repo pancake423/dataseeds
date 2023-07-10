@@ -18,7 +18,7 @@
     width: 70%;
 }
 #v-edit-container {
-    width: 50%;
+    width: 60%;
     height: 90%;
     background-color: var(--color-primary);
     position: absolute;
@@ -34,6 +34,9 @@
     cursor: default;
     align-items: center;
 }
+.v-input {
+    background-color: var(--color-primary);
+}
 #v-mode-settings-box {
     position: absolute;
     width: 80%;
@@ -43,6 +46,7 @@
     border-top: 3px solid var(--color-accent);
     top: 30%;
     left: 10%;
+    overflow-y: scroll;
 }
 #v-bottom-button-bar {
     position: absolute;
@@ -54,6 +58,7 @@
 .v-list-item {
     display: flex;
     justify-content: space-evenly;
+    margin: var(--page-margin);
 }
 .v-list-item > p {
     width: 33%;
@@ -66,5 +71,7 @@
     width: 100%;
 }
 #v-popup-box {
-    position: fixed;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }

@@ -1,5 +1,5 @@
 :root {
-    --d-column-width: 33vw;
+    --d-column-width: 40vw;
 }
 #page-data {
     display: flex;
@@ -33,7 +33,7 @@
     overflow-y: scroll;
     height: 60vh;
     border-radius: var(--round-amt);
-    width: calc(var(--d-column-width) / 1.5);
+    width: calc(var(--d-column-width) / 1.2);
     background-color: var(--color-background);
     border-top: 3px solid var(--color-accent);
     display: flex;

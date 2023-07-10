@@ -357,7 +357,17 @@ function openReport(DF, CODEBOOK, REPORT) {
     );
     function postReportOnLoad(e) {
         if (e.data === "r") {
-            reportWindow.postMessage(generateReportObject(DF, CODEBOOK, REPORT, getReportSettings()), "*");
+            //append columns from CUSTOM_VARIABLES to codebook and report so that they can be used by the generator.
+            let newDF = DF.copy();
+            newDF.join(DF_CUSTOM);
+            reportWindow.postMessage(generateReportObject(
+                newDF, 
+                [
+                    [...CODEBOOK[0], ...CUSTOM_VARIABLES[0]],
+                    [...CODEBOOK[1], ...CUSTOM_VARIABLES[1]],
+                    [...CODEBOOK[2], ...CUSTOM_VARIABLES[2]],
+                ], 
+                REPORT, getReportSettings()), "*");
         }
         window.removeEventListener("message", postReportOnLoad);
     }
