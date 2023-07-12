@@ -8,10 +8,13 @@ function initDataFilesPage() {
     );
 }
 /**
- * updates the contents of DATA_FILE_LIST (display list for files loaded) to reflect the contents of WORKSPACE (data list)
+ * updates the contents of DATA_FILE_LIST (display list for files loaded) to reflect the contents of WORKSPACE (data list).
+ * Also updates DF to match the contents of WORKSPACE.
  */
 function refreshFileList() {
     DATA_FILE_LIST.clear();
+    DF_UP_TO_DATE = false;
+    createMergedDF();
     for (key in WORKSPACE) {
         addFileToList(key);
     }
@@ -128,6 +131,7 @@ function addFilesToWorkspace(fileList) {
  */
 function fItemDeleted(list, index, deletedItem) {
     delete WORKSPACE[deletedItem.selfText.innerText];
+    setUnsavedChanges();
 }
 
 /**

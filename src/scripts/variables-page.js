@@ -39,6 +39,10 @@ function vEditItem(list, index) {
  * adds a custom variable to the list and opens the edit popup.
  */
 function addCustomVariableButton() {
+    if (CODEBOOK.length === 0) {
+        customAlert("Codebook must have data to create custom variables.");
+        return;
+    }
     const index = CV_LIST.addItem(-1, "New Custom Variable");
     CV_LIST.setData(index, ["", "", ""]);
     showCustomEditPopup(index);
@@ -64,7 +68,6 @@ function clearCustomVarsList() {
  * saves the data stored in CV_LIST to CUSTOM_VARIABLES by extracting the data and applying a format conversion.
  */
 function saveCustomVariableData() {
-    setUnsavedChanges();
     CUSTOM_VARIABLES = CV_LIST.getAllData().reduce(
         (accumulator, currentValue) => {
             // don't include empty/unset custom variables
@@ -254,7 +257,6 @@ function populateCustomVariableDatalist() {
         opt.value = name;
         dl.appendChild(opt);
     }
-    console.log(dl);
 }
 /**
  * cancel button of popup. makes no changes to the element, if it's already got data, or deletes it if it's blank.
@@ -350,6 +352,7 @@ function submitCustomEditPopup(index) {
     saveCustomVariableData();
     calculateCustomDF();
     document.getElementById("v-popup-box").className = "no-access-bg hidden";
+    setUnsavedChanges();
     return 0;
 }
 /**
@@ -442,7 +445,7 @@ function addCustomVarsElement(type, values) {
             if (values !== undefined) {
                 min.value = values[0];
                 max.value = values[1];
-                binName.value = values[2];
+                binName.value = values[2] ?? ""; //nullish coalescing operator. neat!
             }
 
             item.appendChild(min);
@@ -453,7 +456,7 @@ function addCustomVarsElement(type, values) {
             parent = document.getElementById("v-combine-list");
             src = document.createElement("input");
             src.className = "c-input v-input";
-            src.list = "v-source-datalist";
+            src.setAttribute("list", "v-source-datalist");
 
             if (values !== undefined) {
                 src.value = values[0];
@@ -465,7 +468,7 @@ function addCustomVarsElement(type, values) {
             parent = document.getElementById("v-merge-list");
             src = document.createElement("input");
             src.className = "c-input v-input";
-            src.list = "v-source-datalist";
+            src.setAttribute("list", "v-source-datalist");
             let comp = document.createElement("select");
             comp.innerHTML = "<option value='='>=</option><option value='!='>!=</option><option value='>'>&gt;</option><option value='<'>&lt;</option><option value='>='>&gt;=</option><option value='<='>&lt;=</option>";
             comp.className = "c-input v-input";

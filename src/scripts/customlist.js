@@ -107,6 +107,8 @@ class CustomList {
         if (this.#itemAddedCallback) {
             this.#itemAddedCallback(this, realIndex);
         }
+        // scroll to an item when its added
+        li.selfDiv.scrollIntoView();
         return realIndex;
     }
     /**
@@ -177,7 +179,6 @@ class CustomList {
      * @param {int} destination - final location of element
      */
     #rearrangeElements(source, destination) {
-        console.log(`moving element ${source} to position ${destination}.`);
         if (source === destination) return;
         
         // unselect current item if selected

@@ -1,3 +1,10 @@
+// project files were originally called config files and many of the internal names still call them config files.
+
+/**
+ * sets the status of the 'save file icon'.
+ * @param {string} m - message to include in icon tooltip
+ * @param {boolean} ok - true -> icon is green, false -> icon is red
+ */
 function setConfigStatus(m, ok) {
     //m -> string message
     //ok -> text is green if true, red if false
@@ -5,20 +12,35 @@ function setConfigStatus(m, ok) {
     c.src = ok ? 'src/assets/download-green.svg' : 'src/assets/download-red.svg';
     c.title = `Save current project file (${m})`;
 }
+/**
+ * shows that there are unsaved changes and adds a warning on page leave.
+ */
 function setUnsavedChanges() {
     UNSAVED_CHANGES = true;
     setConfigStatus("Unsaved changes", !UNSAVED_CHANGES);
     addEventListener("beforeunload", beforeUnloadListener, { capture: true });
 }
+/**
+ * sets the program state to have no unsaved changes and removes the page leave event.
+ */
 function setNoUnsavedChanges() {
     UNSAVED_CHANGES = false;
     setConfigStatus("No unsaved changes", !UNSAVED_CHANGES);
     removeEventListener("beforeunload", beforeUnloadListener, {capture: true});
 }
+/**
+ * beforeUnloadListener prevents the page from automatically leaving. As a security feature we can't actually include a message in this prompt any more.
+ * @param {Event} event 
+ */
 const beforeUnloadListener = (event) => {
     event.preventDefault();
     return (event.returnValue = "");
-  };
+};
+/**
+ * opens a warning prompt indicating to the user what type of operation they selected from the config bar.
+ * @param {string} type - blank, auto, or existing
+ * @returns 
+ */
 function showConfigPrompt(type) {
     let title;
     let text;
@@ -40,7 +62,7 @@ function showConfigPrompt(type) {
             break;
         case 'existing':
             title = "Add Existing Configuration";
-            text = "Use a config file from your local machine.";
+            text = "Use a project file from your local machine.";
             if (UNSAVED_CHANGES) text += "<br><br> Unsaved changes will be lost if you proceed.";
             if (checkConfigLoaded()) text += "<br><br> The currently loaded project file will be replaced if you proceed.";
             break;
@@ -49,6 +71,10 @@ function showConfigPrompt(type) {
     globalWarningPopup(title, text, () => hideConfigPrompt(type), () => 0);
 
 }
+/**
+ * triggered when the user confirms the config prompt, calls the correct function based on the type.
+ * @param {string} res blank, auto, existing
+ */
 function hideConfigPrompt(res) {
     switch (res) {
         case 'blank':
@@ -66,22 +92,27 @@ function hideConfigPrompt(res) {
     refreshPageContent();
     
 }
-
+/**
+ * creates a new blank configuration
+ */
 function newBlankConfig() {
     CODEBOOK = [[], [], []];
     CUSTOM_VARIABLES = [[], [], []];
     REPORT = [];
     WORKSPACE = [];
+    GRAPH_DATA = [];
     loadCustomVariableData();
     setNoUnsavedChanges();
     hideConfigPageBlockers();
 }
+/**
+ * automatically generates a codebook and report based on the contents of DF.
+ */
 function autoGenerateConfig() {
     setUnsavedChanges();
-    // auto populate codebook, custom variables, and report (should be fun)
+    // auto populate codebook and report (should be fun)
     // ensure that DF has been loaded from workspace
     createMergedDF();
-    CUSTOM_VARIABLES = [[], [], []];
     CODEBOOK = [[], [], []];
     let reportSubtitle = "Data Sources:<br>";
     for (key in WORKSPACE) {
@@ -99,20 +130,25 @@ function autoGenerateConfig() {
     hideConfigPageBlockers();
 
 }
+/**
+ * starts an asynchronous file upload operation.
+ * @param {Function} callback - callback function when async operation finishes
+ */
 function addExistingConfig(callback) {
     // prompt user to select JSON file.
     // only if file upload is successful:
     filePickerButtonJSON().then((fileText) => {
         const config = JSON.parse(fileText);
         // ensure config file is valid
-        if (!('codebook' in config && 'custom' in config && 'report' in config && 'workspace' in config)) {customAlert("Invalid configuration file."); return -1};
+        if (!('codebook' in config && 'custom' in config && 'report' in config && 'workspace' in config && 'graphs' in config)) {customAlert("Invalid configuration file."); return -1};
         if (!(config['codebook'].length === 3 && config['custom'].length === 3)) {customAlert("Invalid configuration file."); return -1};
             
         CODEBOOK = config['codebook'];
         CUSTOM_VARIABLES = config['custom'];
         REPORT = config['report'];
+        GRAPH_DATA = config['graphs'];
         parseWorkspaceObject(config['workspace']);
-        loadCustomVariableData();
+        refreshPageContent();
         setNoUnsavedChanges();
         hideConfigPageBlockers();
         if (callback) {
@@ -122,17 +158,20 @@ function addExistingConfig(callback) {
             console.error(err);
     });
 }
+/**
+ * Starts an asynchronous file download operation for the current project file.
+ */
 function saveCurrentConfig() {
     if (!checkConfigLoaded()) {
         // no config file
-        customAlert("No configuration file to save.");
+        customAlert("No project file to save.");
         return -1;
     }
     // open save dialog
     const opts = {
         types: [
           {
-            description: "JSON Config File",
+            description: "JSON Project File",
             accept: { "application/json": [".json"] },
           },
         ],
@@ -142,7 +181,7 @@ function saveCurrentConfig() {
       showSaveFilePicker(opts)
       .then((handle) => handle.createWritable())
       .then((writable) => {
-        const config = JSON.stringify({codebook: CODEBOOK, custom: CUSTOM_VARIABLES, report: REPORT, workspace: getWorkspaceObject(WORKSPACE)});
+        const config = JSON.stringify({codebook: CODEBOOK, custom: CUSTOM_VARIABLES, report: REPORT, workspace: getWorkspaceObject(WORKSPACE), graphs: GRAPH_DATA});
         writable.write(config);
         writable.close();
         setNoUnsavedChanges();
@@ -150,9 +189,12 @@ function saveCurrentConfig() {
       .catch((err) => {
         console.error(err);
     });
-    
-
 }
+/**
+ * convert the object of CustomDataFrames to a standard JSON-convertable object.
+ * @param {Object} w - Object where every entry is a CustomDataFrame.
+ * @returns {Object}
+ */
 function getWorkspaceObject(w) {
     out = {}
     for (const key in w) {
@@ -160,6 +202,10 @@ function getWorkspaceObject(w) {
     }
     return out;
 }
+/**
+ * loads an object of standard objects back into WORKSPACE as data frames.
+ * @param {Object} w - object of standard objects (read directly from project file)
+ */
 function parseWorkspaceObject(w) {
     WORKSPACE = {};
     for (const key in w) {
@@ -169,10 +215,16 @@ function parseWorkspaceObject(w) {
     }
     createMergedDF();
 }
+/**
+ * checks if a project file has been loaded at all.
+ * @returns {Boolean} - whether or not the config file is loaded
+ */
 function checkConfigLoaded() {
     return CODEBOOK.length === 3 && CUSTOM_VARIABLES.length == 3;
 }
-
+/**
+ * before there was a start screen, some of the pages were blocked 
+ */
 function hideConfigPageBlockers() {
     refreshPageContent();
 }
@@ -183,7 +235,7 @@ function filePickerButtonJSON() {
     const options = {
         types: [
           {
-            description: "JSON Config Files",
+            description: "JSON Project Files",
             accept: {
               "application/json": [".json"],
             },

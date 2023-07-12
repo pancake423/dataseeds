@@ -175,6 +175,7 @@ function addGraph(parent, x, y, type, title, subtitle, xlabel, ylabel, footer) {
             COLOR_INDEX = (COLOR_INDEX + x.length) % COLOR_LIST.length;
             break;
         default:
+            if (type === "table") break;
             console.warn(`Unknown graph type '${type}'.`);
             break;
     }

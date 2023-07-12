@@ -22,7 +22,9 @@ let DF_CUSTOM = new BudgetDataFrame(); //data frame used to store columns calcul
 let DATA_FILE_LIST;
 let CB_LIST;
 let CV_LIST;
-let R_LIST;
+let GRAPH_LIST;
+
+let GRAPH_DATA = []; // stores data about custom user graphs.
 
 let SUGGESTED_SAVE_FILE_NAME = "New Project";
 
@@ -32,6 +34,7 @@ function init() {
     initDataFilesPage();
     initCodebookPage();
     initCustomVariablesPage();
+    initGraphsPage();
 }
 
 // main page UI functions. each sub-page's functionality is delegated to a separate file.

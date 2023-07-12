@@ -151,7 +151,6 @@ class BudgetDataFrame {
                 this.addRow("");
             }
         }
-        console.log(df);
         for (const col of df.getColumnList()) {
             let columnData = df.getColumn(col);
             if (joinType === "flag") {

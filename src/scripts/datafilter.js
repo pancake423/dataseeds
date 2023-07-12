@@ -11,7 +11,7 @@ class DataFilter {
         
         // create and show popup window
         function hidePopup() {document.body.removeChild(popupBg)}
-        function addTableRow() {
+        function addTableRow(data) {
             const row = document.createElement("li");
 
             const colName = document.createElement("input");
@@ -46,6 +46,13 @@ class DataFilter {
 
             filterList.appendChild(row);
             colName.setAttribute("list", "r-source-datalist");
+
+            //data = [name, src, value]
+            if (data instanceof Array && data.length === 3) {
+                colName.value = data[0];
+                comp.value = data[1];
+                value.value = data[2];
+            }
         }
         function removeSelfRow(e) {
             e.stopPropagation();
@@ -148,6 +155,12 @@ class DataFilter {
         popupBg.appendChild(popupDiv);
 
         document.body.appendChild(popupBg);
+
+        if (s instanceof Array && s.length > 0) {
+            for (const fItem of s) {
+                addTableRow(fItem);
+            }
+        }
 
         //return promise that resolves from popup window buttons being clicked.
 

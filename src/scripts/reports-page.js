@@ -1,6 +1,6 @@
 /**
  * calls all of the functions needed to prepare the report tab when it is loaded.
- * @returns {null}
+ * @returns {null}nameLabel.style.marginLeft = "var(--page-margin)";
  */
 function loadReportsPage() {
     if (!checkConfigLoaded()) return;
@@ -92,12 +92,14 @@ function addHeaderItem(title, index, values, alreadyExistsInCodebook = false) {
     const div = buildBaseListElement(title, "src/assets/heading.svg");
     if (index === -1) {
         document.getElementById("r-report-list").appendChild(div);
+        div.scrollIntoView();
         if (alreadyExistsInCodebook) return;
         REPORT.push(itemToAdd);
     } else {
         const nodeList = document.getElementById("r-report-list").children;
         const referenceNode = index < nodeList.length ? nodeList[index] : null;
         document.getElementById("r-report-list").insertBefore(div, referenceNode);
+        div.scrollIntoView();
         if (alreadyExistsInCodebook) return;
         REPORT.splice(index, 0, itemToAdd);
     }
@@ -113,19 +115,21 @@ function addGraphItem(title, index, values, alreadyExistsInCodebook = false) {
     const itemToAdd = values === undefined ? ["", "", title, "", "", "", ""] : values;
     if (!alreadyExistsInCodebook) setUnsavedChanges();
     let newGraphTitle = ""
-    if (!CODEBOOK[0].includes(itemToAdd[0])) {
+    if (!(CODEBOOK[0].includes(itemToAdd[0]) || CUSTOM_VARIABLES[0].includes(itemToAdd[0]))) {
         newGraphTitle += `<img title="Data source '${itemToAdd[0]}' not found in codebook" class="d-icon" src="src/assets/triangle-warning.svg">`;
     }
     newGraphTitle += title;
     const div = buildBaseListElement(newGraphTitle, "src/assets/stats.svg")
     if (index === -1) {
         document.getElementById("r-report-list").appendChild(div);
+        div.scrollIntoView();
         if (alreadyExistsInCodebook) return;
         REPORT.push(itemToAdd);
     } else {
         const nodeList = document.getElementById("r-report-list").children;
         const referenceNode = index < nodeList.length ? nodeList[index] : null;
         document.getElementById("r-report-list").insertBefore(div, referenceNode);
+        div.scrollIntoView();
         if (alreadyExistsInCodebook) return;
         REPORT.splice(index, 0, itemToAdd);
     }
@@ -238,7 +242,7 @@ function saveChangesToGraph() {
     // make the corresponding div's <p> element text change to the new title
     // warn if the graph's data source doesn't exist.
     let newGraphTitle = ""
-    if (!CODEBOOK[0].includes(outValues[0])) {
+    if (!(CODEBOOK[0].includes(outValues[0]) || CUSTOM_VARIABLES[0].includes(outValues[0]))) {
         newGraphTitle += `<img title="Data source '${outValues[0]}' not found in codebook" class="d-icon" src="src/assets/triangle-warning.svg">`;
     }
     newGraphTitle += outValues[2];
