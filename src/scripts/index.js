@@ -25,6 +25,7 @@ let CV_LIST;
 let GRAPH_LIST;
 
 let GRAPH_DATA = []; // stores data about custom user graphs.
+let GRAPH_POPUP;
 
 let SUGGESTED_SAVE_FILE_NAME = "New Project";
 
@@ -34,7 +35,6 @@ function init() {
     initDataFilesPage();
     initCodebookPage();
     initCustomVariablesPage();
-    initGraphsPage();
 }
 
 // main page UI functions. each sub-page's functionality is delegated to a separate file.
@@ -76,6 +76,7 @@ function refreshPageContent() {
     loadCodebookPage();
     loadReportsPage();
     loadCustomVariablesPage();
+    PopupVariable.updateDataSourceDropdown([...CODEBOOK[0], ...CUSTOM_VARIABLES[0]]);
 }
 
 /**
@@ -111,6 +112,7 @@ function selectTab(n) {
     if (n === 0) refreshFileList();
     if (n === 1) loadCodebookPage();
     if (n === 3) loadReportsPage();
+    if (n == 4) {loadGraphData(); PopupVariable.updateDataSourceDropdown([...CODEBOOK[0], ...CUSTOM_VARIABLES[0]]);}
 }
 
 //Data operations
@@ -121,7 +123,7 @@ function selectTab(n) {
  * if the current global data frame (DF) is out of date, update it by appending the contents of all files listed in WORKSPACE.
  * the append method is COLUMN_MISMATCH_HANDLING.
  * modifies DF, DF_UP_TO_DATE.
- * @returns {int|null } 0 if df up to date otherwise null
+ * @returns {int|null} 0 if df up to date otherwise null
  */
 function createMergedDF() {
     if (DF_UP_TO_DATE) return 0;

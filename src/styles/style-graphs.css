@@ -30,7 +30,6 @@
     top: 50%;
     transform: translate(-50%, -50%);
     cursor: default;
-    overflow-y: scroll;
 }
 .g-var-div {
     display: flex;
@@ -40,6 +39,8 @@
     margin: calc(var(--page-margin) / 2);
     background-color: var(--color-background);
     border-radius: var(--round-amt);
+    gap: var(--page-margin);
+    transition-duration: 0.2s;
 }
 
 .g-var-div > input {
@@ -52,6 +53,11 @@
     align-items: center;
     padding: var(--page-margin);
     gap: var(--page-margin);
+}
+.g-graph-div {
+    overflow-y: scroll;
+    height: 100%;
+    box-sizing: border-box;
 }
 .g-var-container {
     display: flex;
@@ -68,4 +74,24 @@
     height: 3px;
     background-color: var(--color-dark);
     border-radius: 1px;
+}
+.g-submit-bar {
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    flex-direction: row;
+    gap: var(--page-margin);
+    width: 80%;
+    height: 10%;
+    border-top: 3px solid var(--color-accent);
+    background-color: var(--color-primary);
+    border-radius: var(--round-amt);
+}
+.g-spacer {
+    margin-top: 10%;
+    width: 20%;
 }

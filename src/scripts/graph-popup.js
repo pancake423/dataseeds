@@ -3,6 +3,7 @@
  * datafilter.js
  * index.js -> customAlert()
  * index.js -> CODEBOOK, CUSTOM_VARIABLES
+ * report-url-gen.js -> getReportSettings()
  * random css scattered across the program (I know, great practice)
  */
 class PopupVariable {
@@ -125,11 +126,17 @@ class PopupVariable {
      */
     checkValidData() {
         const data = this.getData();
-        if (data.name === "") return false;
+        if (data.name === "") {this.#alertBadData("Variable must have a name."); return false};
         // !!! danger, referencing global variables
-        if (!(CODEBOOK[0].includes(data.source) || CUSTOM_VARIABLES[0].includes(data.source))) return false;
+        if (!(CODEBOOK[0].includes(data.source) || CUSTOM_VARIABLES[0].includes(data.source))) {this.#alertBadData("Invalid/missing data source (not found in codebook or custom variables)."); return false};
         // !!! danger ends here
         return true;
+    }
+    #alertBadData(m) {
+        this.#selfDiv.style.backgroundColor = "lightcoral";
+        this.#selfDiv.scrollIntoView();
+        window.setTimeout(() => {this.#selfDiv.style.backgroundColor = "var(--color-background)";}, 1000);
+        customAlert(m); // !!! L
     }
     /**
      * applies popup variable data to the current instance.
@@ -169,6 +176,10 @@ class PopupPlot {
         {name: "table", value: "table", max: 2},
         {name: "pie", value: "pie", max: 2},
     ];
+    /**
+     * creates a popup plot settings editor and binds it to the parent div.
+     * @param {Node} parentDiv - div to place popup plot in.
+     */
     constructor(parentDiv) {
         this.#parentDiv = parentDiv;
 
@@ -255,13 +266,19 @@ class PopupPlot {
 
         parentDiv.appendChild(this.#selfDiv);
     }
+    /**
+     * ensures that the variable container doesn't have over the maximum number of variables for its type.
+     */
     #updateVariableContainer() {
-        // ensure that variable container doesn't have over the maximum number of variables for its type.
         const data = this.#getCurrentTypeData();
         while (data.max < this.#variableList.length) {
             this.#removeVariable();
         }
     }
+    /**
+     * returns the PopupPlot.plotTypes object representing the currently selected plot type.
+     * @returns {Object} {name, value, max}
+     */
     #getCurrentTypeData() {
         let typeValue = this.#type.value;
         for (const entry of PopupPlot.plotTypes) {
@@ -271,6 +288,9 @@ class PopupPlot {
         }
         return -1;
     }
+    /**
+     * adds a variable (if permitted by the current type) to the variable container.
+     */
     #addVariable() {
         const data = this.#getCurrentTypeData();
         if (data.max > this.#variableList.length) {
@@ -282,6 +302,9 @@ class PopupPlot {
             // !!! thats all
         }
     }
+    /**
+     * removes a variable (if there are more than one) from the variable container.
+     */
     #removeVariable() {
         if (this.#variableList.length > 1) {
             this.#variableList.pop().remove();
@@ -291,9 +314,25 @@ class PopupPlot {
             // !!! :)
         }
     }
+    /**
+     * removes the popup plot visual from its parent.
+     */
     remove() {
         this.#parentDiv.removeChild(this.#selfDiv);
     }
+    /**
+     * @typedef PopupPlotData
+     * @param {string} subtitle - sub title of plot
+     * @param {string} xlabel - x axis label of plot
+     * @param {string} ylabel - y axis label of plot
+     * @param {string} footer - footer text of plot
+     * @param {string} type - plot type (see PopupPlot.plotTypes)
+     * @param {Array<PopupVariableData>} variables - plotted variable data
+     */
+    /**
+     * gets the data represented by the current plot popup
+     * @returns {PopupPlotData}
+     */
     getData() {
         let obj = {};
         const inputList = this.#selfDiv.getElementsByTagName("input");
@@ -304,6 +343,10 @@ class PopupPlot {
         obj.variables = this.#variableList.map((v) => v.getData());
         return obj;
     }
+    /**
+     * loads a data object into the current popup plot.
+     * @param {PopupPlotData} data 
+     */
     setData(data) {
         const inputList = this.#selfDiv.getElementsByTagName("input");
         for (let i = 0; i < PopupPlot.fields.length; i++) {
@@ -320,14 +363,214 @@ class PopupPlot {
             this.#variableList[this.#variableList.length -1].setData(v);
         }
     }
+    /**
+     * checks if all data in the current plot is valid.
+     * @returns {Boolean} whether or not the current plot contains valid data.
+     */
     checkValidData() {
-        
+        for (const v of this.#variableList) {
+            if (!v.checkValidData()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
+     * temporarily hides the current plot from view.
+     */
+    hide() {
+        this.#selfDiv.style.display = "none";
+    }
+    /**
+     * makes the current plot visible.
+     */
+    show() {
+        this.#selfDiv.style.display = "flex";
     }
 
 }
 
 class PopupGraph {
-    constructor() {
+    #selfDiv;
+    #graphTitle;
+    #numPlots;
+    #plot1;
+    #p2Title;
+    #plot2;
+    /**
+     * creates a graph popup and binds it to the parent div.
+     * @param {Node} parentDiv -div to bind popup graph to.
+     * @param {Function} submitCallback - function to call when user successfully submits data.
+     * @param {*} cancelCallback - function to call when user cancels data submission.
+     */
+    constructor(parentDiv, submitCallback, cancelCallback) {
+        this.submitCallback = submitCallback;
+        this.cancelCallback = cancelCallback;
 
+        this.#selfDiv = document.createElement("div");
+        this.#selfDiv.className = "g-plot-div g-graph-div";
+
+        // header
+        const header = document.createElement("h2");
+        header.innerText = "Edit Graph";
+        this.#selfDiv.appendChild(header);
+
+        // graph title control
+        const graphTitleBar = document.createElement("div");
+        graphTitleBar.className = "c-horiz-bar";
+        const graphTitleLabel = document.createElement("label");
+        graphTitleLabel.innerText = "Graph Title:";
+        graphTitleLabel.style.width = "10em";
+        this.#graphTitle = document.createElement("input");
+        this.#graphTitle.className = "c-input";
+        graphTitleBar.appendChild(graphTitleLabel);
+        graphTitleBar.appendChild(this.#graphTitle);
+        this.#selfDiv.appendChild(graphTitleBar);
+
+
+        // number of plots control
+        const viewBar = document.createElement("div");
+        viewBar.className = "c-horiz-bar";
+        const viewLabel = document.createElement("label");
+        viewLabel.innerText = "View Mode: ";
+        viewLabel.style.width = "10em";
+        this.#numPlots = document.createElement("select");
+        this.#numPlots.innerHTML = "<option value='1'>Single Plot</option><option value='2'>Double Plot</option>";
+        this.#numPlots.className = "c-input";
+        this.#numPlots.onchange = () => this.#updateNumPlots();
+        viewBar.appendChild(viewLabel);
+        viewBar.appendChild(this.#numPlots);
+        this.#selfDiv.appendChild(viewBar);
+
+        // plot 1
+        const p1Title = document.createElement("h2");
+        p1Title.innerText = "Plot 1";
+        this.#selfDiv.appendChild(p1Title);
+        this.#plot1 = new PopupPlot(this.#selfDiv);
+
+        // plot 2
+        this.#p2Title = document.createElement("h2");
+        this.#p2Title.innerText = "Plot 2";
+        this.#selfDiv.appendChild(this.#p2Title);
+        this.#plot2 = new PopupPlot(this.#selfDiv);
+
+        this.#updateNumPlots();
+
+
+        // missing data reporting controls
+        // now this is what I call saving time: instead of duplicating the missing data reporting options from 'report', just re-use their data and make the user
+        // switch tabs if they want to change it. :')
+        const missingDataNote = document.createElement("p");
+        missingDataNote.innerText = "Note: missing data handling follows the same convention as the 'Reports' page. To adjust how missing data is handled, use the controls on that page."
+        this.#selfDiv.appendChild(missingDataNote);
+
+
+        // cancel and submit buttons
+        const navButtonBar = document.createElement("div");
+        navButtonBar.className = "g-submit-bar";
+        const submitButton = document.createElement("button");
+        submitButton.className = "c-button";
+        submitButton.innerText = "Submit";
+        submitButton.onclick = () => this.#submitButton(this.submitCallback);
+        const cancelButton = document.createElement("button");
+        cancelButton.className = "c-button";
+        cancelButton.innerText = "Cancel";
+        cancelButton.onclick = () => this.cancelCallback();
+        cancelButton.style.backgroundColor = "var(--color-background)";
+        navButtonBar.appendChild(submitButton);
+        navButtonBar.appendChild(cancelButton);
+
+        //bottom spacer
+        const spacer = document.createElement("div");
+        spacer.className = "g-spacer";
+        this.#selfDiv.appendChild(spacer);
+
+
+        parentDiv.appendChild(this.#selfDiv);
+        parentDiv.appendChild(navButtonBar);
+
+    }
+    /**
+     * checks if the data entered into the graph popup is valid.
+     * also calls customAlerts to explain the cause of invalid data to the user.
+     * @returns {Boolean} true if data is valid, false if data is invalid.
+     */
+    #checkValidData() {
+        //check that title exists
+        if (this.#graphTitle.value === "") {
+            customAlert("Graph must have a title.");
+            return false;
+        }
+        //check subplots
+        if (!this.#plot1.checkValidData()) {return false;}
+        if (this.#getNumPlots() === 2) {
+            if (!this.#plot1.checkValidData()) {return false;}
+        }
+        return true;
+    }
+    /**
+     * @typedef PopupGraphData
+     * @param {string} title - Title of graph
+     * @param {ReportSettings} missing - how to handle missing data in graph
+     * @param {Array<PopupPlotData>} data - subplot data
+     */
+    /**
+     * returns the data object representing the current graph configuration.
+     * @returns {PopupGraphData}
+     */
+    #getData() {
+        let data = {};
+        data.title = this.#graphTitle.value;
+        data.data = [this.#plot1.getData()];
+        if (this.#getNumPlots === 2) data.data.push(this.#plot2.getData());
+        data.missing = getReportSettings(); // !!! this is probably a war crime to be honest.
+        return data;
+    }
+    /**
+     * loads a data object into the popup.
+     * @param {PopupGraphData} data 
+     */
+    setData(data) {
+        //ignores data.missing due to the compromise of stealing the settings from 'report'
+        PopupVariable.updateDataSourceDropdown([...CODEBOOK[0], ...CUSTOM_VARIABLES[0]]);
+        this.#graphTitle.value = data.title;
+        this.#plot1.setData(data.data[0]);
+        if (data.data.length === 2) this.#plot2.setData(data.data[1]);
+        this.#numPlots.value = data.data.length;
+        this.#updateNumPlots();
+    }
+    /**
+     * called when the user clicks the submit button at the bottom of the popup. checks that all data entered is valid, and if it is, calls the callback function with the popup's data passed as a parameter.
+     * @param {Function} callback - callback function if submit operation is successful.
+     * @returns 
+     */
+    #submitButton(callback) {
+        // check valid data
+        if (!this.#checkValidData()) return;
+        // get data
+        // callback(data)
+        callback(this.#getData());
+
+    }
+    /**
+     * reads the value of the 'View Mode' dropdown.
+     * @returns {int} number of plots to show (1 or 2)
+     */
+    #getNumPlots() {
+        return Number(this.#numPlots.value);
+    }
+    /**
+     * reads the value of the 'View Mode' option and shows or hides plot 2 accordingly.
+     */
+    #updateNumPlots() {
+        if (this.#getNumPlots() === 1) {
+            // single plot (hide plot 2)
+            this.#p2Title.style.display = "none";
+            this.#plot2.hide();
+        } else {
+            // double plot (show plot 2)
+            this.#p2Title.style.display = "block";
+            this.#plot2.show();
+        }
     }
 }
