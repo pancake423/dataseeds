@@ -172,7 +172,7 @@ class PopupPlot {
         {name: "Bar (standard)", value: "bar", max: 4},
         {name: "Bar (stacked)", value: "barstack", max: 4},
         {name: "Scatter", value: "scatter", max: 3},
-        {name: "line", value: "line", max: 1},
+        {name: "line", value: "line", max: 4}, // plot multiple lines
         {name: "table", value: "table", max: 2},
         {name: "pie", value: "pie", max: 2},
     ];

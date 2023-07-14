@@ -71,7 +71,10 @@
     width: 100%;
 }
 #v-popup-box {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+    position: fixed;
+    width: calc(100vw - 7 * var(--page-margin) - var(--config-container-width));
+    height: calc(100vh - 4 * var(--page-margin) - var(--tab-bar-height));
+    padding: var(--page-margin);
+    left: var(--page-margin);
+    top: calc(var(--page-margin) + var(--tab-bar-height));
 }

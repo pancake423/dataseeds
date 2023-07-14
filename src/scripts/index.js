@@ -26,6 +26,7 @@ let GRAPH_LIST;
 
 let GRAPH_DATA = []; // stores data about custom user graphs.
 let GRAPH_POPUP;
+let GRAPH_RENDERER;
 
 let SUGGESTED_SAVE_FILE_NAME = "New Project";
 

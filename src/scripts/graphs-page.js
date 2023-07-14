@@ -15,6 +15,7 @@ function initGraphsPage() {
         ]
     );
     GRAPH_POPUP = new PopupGraph(document.getElementById("g-popup"));
+    GRAPH_RENDERER = new GraphRenderer(document.getElementById("g-graph-viewer"));
 }
 
 /**
@@ -62,6 +63,7 @@ function gItemDeleted(list, index) {
  */
 function gItemSelected(list, index) {
     // add preview to window
+    GRAPH_RENDERER.render(GRAPH_DATA[index], DF.join(DF_CUSTOM));
 }
 /**
  * UNDER CONSTRUCTION: COMING SOON :)

@@ -156,6 +156,7 @@ function conversionTableHasData() {
     if (CODEBOOK[1][index] == "convert" && !(numKeys === 0 || numKeys === 1 && CODEBOOK[2][index][""] === "")) {
        return true
     }
+
     return false;
 }
 /**
@@ -192,7 +193,7 @@ function changeConversionType(conv) {
             addConvLabel("Original Value", "New Value");
             break;
         case "none":
-            CODEBOOK[1][index] = "range";
+            CODEBOOK[1][index] = "none";
             CODEBOOK[2][index] = {};
             // leave blank
             break;

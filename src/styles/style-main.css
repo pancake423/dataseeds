@@ -54,7 +54,7 @@ body {
     border-radius: var(--round-amt);
     border-top-left-radius: 0;
     padding: var(--page-margin);
-    position: absolute;
+    position: fixed;
     left: var(--page-margin);
     top: calc(var(--page-margin) + var(--tab-bar-height));
     overflow-y:scroll;
