@@ -63,7 +63,9 @@ function gItemDeleted(list, index) {
  */
 function gItemSelected(list, index) {
     // add preview to window
-    GRAPH_RENDERER.render(GRAPH_DATA[index], DF.join(DF_CUSTOM));
+    let joinedDF = DF.copy();
+    joinedDF.join(DF_CUSTOM);
+    GRAPH_RENDERER.render(GRAPH_DATA[index], joinedDF, CODEBOOK);
 }
 /**
  * UNDER CONSTRUCTION: COMING SOON :)
@@ -71,7 +73,7 @@ function gItemSelected(list, index) {
  * @param {int} index 
  */
 function gItemDeselected(list, index) {
-    // remove preview from window
+    GRAPH_RENDERER.hide();
 }
 /**
  * Function called when the user clicks the 'edit' button on a list entry. Opens the 'edit graph' popup and configures it to display and edit the correct data.
@@ -109,6 +111,11 @@ function gPopupSubmit(index, data) {
     GRAPH_LIST.setElementText(index, data.title);
     saveGraphData();
     setUnsavedChanges();
+    if (GRAPH_LIST.getSelected() === index) {
+        let joinedDF = DF.copy();
+        joinedDF.join(DF_CUSTOM);
+        GRAPH_RENDERER.render(GRAPH_DATA[index], joinedDF, CODEBOOK);
+    }; //refresh preview on popup submission (if active)
 }
 /**
  * add a new item to the graph list.
@@ -140,8 +147,10 @@ function saveGraphData() {
  * loads data from GRAPH_DATA (underlying state representation) into GRAPH_LIST (visual representation)
  */
 function loadGraphData() {
+    if (GRAPH_LIST === undefined) return
     // check if graphs already loaded, prevents the popup from being closed when you switch tabs.
-    if (GRAPH_LIST.getLength() >= GRAPH_DATA.length) return;
+    if (JSON.stringify(GRAPH_LIST.getAllData()) === JSON.stringify(GRAPH_DATA)) return;
+
     GRAPH_LIST.clear();
     if (GRAPH_DATA.length === 0) return;
     for (const g of GRAPH_DATA) {

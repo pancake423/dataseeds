@@ -1,4 +1,4 @@
-This is the first large project I've ever made (more than 1000 lines of code).
+This is the first large project I've ever made (more than 1000 lines of code, and I blew that out of the water).
 It definitely has some ... interesting ... code in it as a result.
 there are a lot of things that I would do differently if I could start over or reset, that I don't have time to do during my internship.
 I experimented with a lot of different styles for different parts of the program, including:
@@ -15,6 +15,13 @@ I experimented with a lot of different styles for different parts of the program
 
  with all that said, here's what I will keep in mind for the next large project I tackle (which will be my senior project for my bachelor's):
 
- plan. designing a whole program one component at a time with little thought about the final product makes it hard to re-use code. Plan what the whole program will do, and create re-usable components for common elements. Honestly, make re-usable components even for elements that might only be used once.
+ plan. designing a whole program one component at a time with little thought about the final product makes it hard to re-use code. Plan what the whole program will do, how it will look, etc., and create re-usable components for common elements. Honestly, make re-usable components even for elements that might only be used once.
 
-the best style for my brain is event-driven + functional. My components will be classes that store their relevant data and DOM nodes. Each component should raise events when it is interacted with (custom events). Each event can then be dealt with in a functional manner, only modifying its parent component by calling class methods when necessary.
+the best style for my brain is event-driven + functional. My components will be classes that store their relevant data and DOM nodes. Each component should raise events when it is interacted with (either callback functions or custom events). Each event can then be dealt with in a functional manner, only modifying component states by calling class methods when necessary.
+
+another big issue in this program is excessive reloading/refreshing of page content. Since I don't have an easy way to determine what needs to be refreshed, I just refresh everything because it solves a lot of bugs. This "better safe than sorry" approach has a significant performance impact on very large datasets, causing a brief but noticable delay when switching tabs. If the program were to continue to grow without solving this issue it would eventually become unusably slow.
+If I had better separation of data and better logical organization in my program, it would be much easier to tell when things actually need to be refreshed.
+
+another issue that I ran into is just simply being overambitious and being forced to cut corners as a result. To get everything done, I chose to completely skip automated testing and rely entirely on the "eye test" of running the program, poking it for a few minutes, and deciding whether or not it worked as intended, which, of course, led to tons of bugs that I didn't catch until further down the line that were much harder to troubleshoot. (and many bugs that I'm sure I never caught at all). I was a technical debt factory all summer.
+
+Summary: I went into this project with either a lack of knowledge or blatant disregard of many best programming practices, and now I see why those same principles exist. I think the best, perhaps only, way for me to wrap my head around software development principles was to go into a big project and do everything wrong, and get smacked in the face with the consequences. If every project is a learning experience, this one was a whole K-12 education for me.

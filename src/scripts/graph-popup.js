@@ -171,10 +171,10 @@ class PopupPlot {
     static plotTypes = [
         {name: "Bar (standard)", value: "bar", max: 4},
         {name: "Bar (stacked)", value: "barstack", max: 4},
-        {name: "Scatter", value: "scatter", max: 3},
-        {name: "line", value: "line", max: 4}, // plot multiple lines
-        {name: "table", value: "table", max: 2},
-        {name: "pie", value: "pie", max: 2},
+        {name: "Scatter", value: "scatter", max: 2},
+        {name: "Line", value: "line", max: 4}, // plot multiple lines
+        {name: "Table", value: "table", max: 2},
+        {name: "Pie", value: "pie", max: 1},
     ];
     /**
      * creates a popup plot settings editor and binds it to the parent div.
@@ -522,7 +522,7 @@ class PopupGraph {
         let data = {};
         data.title = this.#graphTitle.value;
         data.data = [this.#plot1.getData()];
-        if (this.#getNumPlots === 2) data.data.push(this.#plot2.getData());
+        if (this.#getNumPlots() === 2) data.data.push(this.#plot2.getData());
         data.missing = getReportSettings(); // !!! this is probably a war crime to be honest.
         return data;
     }
@@ -531,6 +531,9 @@ class PopupGraph {
      * @param {PopupGraphData} data 
      */
     setData(data) {
+        //clear the values of plot1 and plot2
+        this.#plot1.setData({subtitle: "", xlabel: "", ylabel: "", footer: "", type: "bar", variables: [{name: "", source: "", filter: []}]});
+        this.#plot2.setData({subtitle: "", xlabel: "", ylabel: "", footer: "", type: "bar", variables: [{name: "", source: "", filter: []}]});
         //ignores data.missing due to the compromise of stealing the settings from 'report'
         PopupVariable.updateDataSourceDropdown([...CODEBOOK[0], ...CUSTOM_VARIABLES[0]]);
         this.#graphTitle.value = data.title;

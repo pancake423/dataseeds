@@ -80,11 +80,16 @@ body {
     color: white;
     text-align: center;
 }
-#icon-attribution {
+#icon-attribution, #doc-link {
     position: fixed;
-    left: var(--page-margin);
     bottom: var(--page-margin);
     font-size: 1em;
+}
+#icon-attribution {
+    left: var(--page-margin);
+}
+#doc-link {
+    right: calc(var(--config-container-width) + var(--page-margin) * 5);
 }
 #config-status-box {
     position: absolute;

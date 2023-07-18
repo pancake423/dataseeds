@@ -250,7 +250,7 @@
                     </div>
                     <div class="c-horiz-bar">
                         <label for="r-report-footer">Report bad data in footer:</label>
-                        <input class="r-checkbox" type="checkbox" value = "on" id="r-report-footer">
+                        <input class="r-checkbox" type="checkbox" value = "on" id="r-report-footer" checked>
                     </div>
                     <div class="r-generate-container">
                         <button class="r-chunky-button" onclick="openReport(DF, CODEBOOK, REPORT)"><b>Generate Report</b></button>
@@ -281,6 +281,7 @@
             </div>
         </div>
         <div id="icon-attribution">Uicons by <a target='_blank' href="https://www.flaticon.com/uicons">Flaticon</a></div>
+        <div id="doc-link">Click <a href="https://docs.google.com/document/d/16gLJqnbZx7XQxT87J2j1RHekv4hfxlI64_kcMoJ5DRs/edit?usp=sharing" target="_blank">here</a> to view documentation</div>
     </div>
     <div id="config-container">
         <h2 id="config-title">Project File</h2>
@@ -320,7 +321,7 @@
             <p id="start-descr">Raw data to reports in minutes. Analyze data sets and create detailed graphs, locally within the browser.</p>
             <div id="start-button-bar">
                 <button class ="start-button" title="New Project" onclick="newProjectButton()"><img class ="start-button-icon" src="src/assets/square-plus.svg"/></button>
-                <button class ="start-button" title="Upload Existing Project" onclick="existingProjectButton()"><img class ="start-button-icon" src="src/assets/upload.svg"/></button>
+                <button class ="start-button" title="Add Existing Project" onclick="existingProjectButton()"><img class ="start-button-icon" src="src/assets/upload.svg"/></button>
             </div>
             <a href="https://docs.google.com/document/d/16gLJqnbZx7XQxT87J2j1RHekv4hfxlI64_kcMoJ5DRs/edit?usp=sharing" target="_blank" id="start-help-link">help</a>
         </div>

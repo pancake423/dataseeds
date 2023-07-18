@@ -77,6 +77,7 @@ function refreshPageContent() {
     loadCodebookPage();
     loadReportsPage();
     loadCustomVariablesPage();
+    loadGraphData();
     PopupVariable.updateDataSourceDropdown([...CODEBOOK[0], ...CUSTOM_VARIABLES[0]]);
 }
 

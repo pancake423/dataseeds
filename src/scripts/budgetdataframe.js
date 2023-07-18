@@ -13,10 +13,10 @@ class BudgetDataFrame {
     * @param {Array<string>} [columns] - array of column names
     * @param {Array<Array<any>>} [data] - 2d array of data
     */
-    constructor(columns, data) {
+    constructor(columns, data, safe=true) {
         this.numColumns = 0;
         this.numRows = 0;
-        if (BudgetDataFrame.#checkValidData(columns, data)) {
+        if (!safe || BudgetDataFrame.#checkValidData(columns, data)) {
             this.#columns = columns;
             this.#data = data;
             this.numColumns = this.#data[0].length;
@@ -86,7 +86,7 @@ class BudgetDataFrame {
      * @returns {BudgetDataFrame} - new data frame containing identical data
      */
     copy() {
-        return new BudgetDataFrame(this.getColumnList(), this.#data.map((r) => r.map((i) => i)));
+        return new BudgetDataFrame(this.getColumnList(), this.#data.map((r) => r.map((i) => i)), false);
     }
     /**
     * Appends a data frame to the current data frame.
@@ -145,6 +145,11 @@ class BudgetDataFrame {
             this.addRow(outRow);
         }
     }
+    /**
+     * joins the rows of another data frame on the end of the current one.
+     * @param {BudgetDataFrame} df - Data frame to join
+     * @param {string} joinType - how to handle the join operation if there are mismatched columns. flag raises an error if there are mismtached columns, while fill puts empty cells wherever needed to make all columns exist.
+     */
     join(df, joinType="flag") {
         if (joinType === "fill") {
             while (df.numRows > this.numRows) {
@@ -362,12 +367,9 @@ class BudgetDataFrame {
         this.#data[columnIndex][row] = value;
     }
     /**
-     * filters a data frame according to the following parameters, and returns the data frame containing all entries
-     * from the parent that pass the filter.
-     * @param {string|int} columnIndexOrName - name or index number of the column to get comparison values from.
-     * @param {string} comparison - type of comparison. '>', '<', '=', '>=', '<=', '!=', 'unique'. unique only keeps the first row to have a certain value in the column.
-     * @param {string|number} value - value to compare to. strings only support = and != comparison types.
+     * this was my original filter function. just keeping it around to show the power of good code. it is longer, harder to read, and 100x slower than the new version.
      */
+    /*
     filter(columnIndexOrName, comparison, value) {
         const out = this.copy();
         const filterColumn = this.getColumn(columnIndexOrName);
@@ -441,6 +443,36 @@ class BudgetDataFrame {
             default:
                 throw Error(`Unknown comparison type '${comparison}'`);
         }
+        return out;
+    }
+    */
+    /**
+     * filters a data frame according to the following parameters, and returns the data frame containing all entries
+     * from the parent that pass the filter.
+     * @param {string|int} columnIndexOrName - name or index number of the column to get comparison values from.
+     * @param {string} comparison - type of comparison. '>', '<', '=', '>=', '<=', '!=', 'unique'. unique only keeps the first row to have a certain value in the column.
+     * @param {string|number} value - value to compare to. strings only support = and != comparison types.
+     */
+    filter(columnIndexOrName, comparison, value) {
+        let uniqueBin = [];
+        const compFuncs = {
+            "=": (a, b) => String(a) === String(b),
+            "!=": (a, b) => String(a) !== String(b),
+            ">": (a, b) => Number(a) > Number(b),
+            ">=": (a, b) => Number(a) >= Number(b),
+            "<": (a, b) => Number(a) < Number(b),
+            "<=": (a, b) => Number(a) <= Number(b),
+            "unique": (a, b) => {
+                if (uniqueBin.includes(a)) {return false;}
+                else {uniqueBin.push(a); return true;}
+            }
+        }
+        const comp = compFuncs[comparison];
+        const col = this.getColumn(columnIndexOrName);
+        const keep = col.map((v) => comp(v, value));
+        const outData = this.#data.reduce((a, v, i) => {if (keep[i]) a.push(v); return a;}, []);
+        console.log(outData);
+        let out = new BudgetDataFrame(this.getColumnList(), outData, false);
         return out;
     }
 }

@@ -241,7 +241,7 @@ function populateCustomEditPopup(type, convTable) {
             break;
         case "merge":
             for (let i = 0; i < convTable.length; i++) {
-                addCustomVarsElement("combine", convTable[i]);
+                addCustomVarsElement("merge", convTable[i]);
             }
             break;
     }
