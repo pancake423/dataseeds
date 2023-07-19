@@ -30,7 +30,8 @@ Plotly.js (for displaying graphical data)
 
 Flaticon (UI icons)
 
-#Browser and Device Support:
+#
+Browser and Device Support:
 
 Modern browser supporting new FilePicker methods (at the time of writing: Chrome, Edge, or Opera)
 Other browser users (Safari, Firefox) will be mildy annoyed by a disfunctional 'add files' button and being forced to drag and drop files.
