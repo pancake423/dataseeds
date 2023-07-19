@@ -471,7 +471,6 @@ class BudgetDataFrame {
         const col = this.getColumn(columnIndexOrName);
         const keep = col.map((v) => comp(v, value));
         const outData = this.#data.reduce((a, v, i) => {if (keep[i]) a.push(v); return a;}, []);
-        console.log(outData);
         let out = new BudgetDataFrame(this.getColumnList(), outData, false);
         return out;
     }

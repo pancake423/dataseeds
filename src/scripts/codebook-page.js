@@ -121,10 +121,14 @@ function checkAddAllVariables() {
  * adds all variables not currently present in the codebook (but present in the workspace) to the codebook.
  */
 function addAllVariables() {
+    const removeList = [];
+    //another state mutation bug... shocker. addVariable removes the variable from the datalist so the original implementation was trying to read the list while it got mutated.
     for (const option of document.getElementById('c-add-datalist').children) {
-        addVariable(option.innerHTML);
-        option.remove();
-    }shown
+        removeList.push(option.innerHTML);
+    }
+    for (const v of removeList) {
+        addVariable(v);
+    }
     setUnsavedChanges();
 }
 /**

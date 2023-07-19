@@ -53,9 +53,9 @@ class GraphRenderer {
         let col = filteredDF.getColumn(varInfo.source);
         //apply codebook to column
         const codebookIndex = CODEBOOK[0].findIndex((i) => i === varInfo.source);
+        const missingReplacement = missingData.missing ? missingData.missingValue : "";
+        const rangeReplacement = missingData.range ? missingData.rangeValue : "";
         if (codebookIndex !== -1) {
-            const missingReplacement = missingData.missing ? missingData.missingValue : "";
-            const rangeReplacement = missingData.range ? missingData.rangeValue : "";
             switch (CODEBOOK[1][codebookIndex]) {
                 case "range":
                     const min = CODEBOOK[2][codebookIndex].min;
@@ -101,6 +101,14 @@ class GraphRenderer {
                     break;
                 default:
                     throw Error("How did you get here?");
+            }
+        } else {
+            // custom variable. gets the same treatment as conversion type "none".
+            for (let i = 0; i < col.length; i++) {
+                if (col[i] === "") {
+                    // missing data
+                    col[i] = missingReplacement;
+                }
             }
         }
         return {
@@ -163,7 +171,7 @@ class GraphRenderer {
         let colorPalatte = [];
         let footer = plotInfo.footer + "<br>";
         let numColors = plotInfo.variables.length;
-        if (plotInfo.type === "pie") numColors = GraphRenderer.colorList.length;
+        if (plotInfo.type === "pie") {numColors = GraphRenderer.colorList.length};
         for (let i = 0; i < numColors; i++) {
             colorPalatte.push(GraphRenderer.colorList[GraphRenderer.colorIndex]);
             GraphRenderer.colorIndex++;
@@ -280,7 +288,11 @@ class GraphRenderer {
                         text: y.map(String),
                         textposition: "outside",
                         name: variableData.name,
+                        rotation: 180,
+                        sort: false
                     });
+                    GraphRenderer.colorIndex += x.length;
+                    GraphRenderer.colorIndex %= GraphRenderer.colorList.length;
                 }
                 break;
             case "table":
@@ -373,7 +385,7 @@ class GraphRenderer {
      * @param {Object} dataObj - object containing aggregated data.
      * @param {Object} missingData - object describing how to report missing data.
      */
-    static #parseAggregatedData(dataObj, missingData) {
+    static #parseAggregatedData(dataObj, missingData, sortByX = true) {
         let footerText = "";
         let x = Object.keys(dataObj.agg);
         let y = Object.values(dataObj.agg);
@@ -415,16 +427,18 @@ class GraphRenderer {
         // sort x and y
         let d = x.map((v, i) => {return {x: x[i], y: y[i]}});
         d.sort((a, b) => {
-            const na = !Number.isNaN(Number(a.x));
-            const nb = !Number.isNaN(Number(b.x));
+            const va = sortByX ? a.x : a.y;
+            const vb = sortByX ? b.x : b.y;
+            const na = !Number.isNaN(Number(va));
+            const nb = !Number.isNaN(Number(vb));
             if (na && !nb) return -1;
             if (!na && nb) return 1;
             if (na && nb) {
-                return Number(a.x) - Number(b.x);
+                return Number(va) - Number(vb);
             }
             if (!na && !nb) {
-                if (a.x < b.x) return -1;
-                if (a.x < b.x) return 1;
+                if (va < vb) return -1;
+                if (va < vb) return 1;
             }
             return 0;
         });
@@ -484,7 +498,20 @@ class GraphRenderer {
      * opens the currently rendered graph in a new tab.
      */
     popout() {
-
+        const reportWindow = window.open(
+            `src/graph.html`,//URL
+            "_blank" //open in new tab
+        );
+        window.addEventListener(
+            "message",
+            (e) => {
+                console.log(e);
+                if (e.data === "g") {
+                    reportWindow.postMessage(this.#drawCall, "*");
+                }
+            },
+            {once: true}
+        );
     }
     /**
      * hide the currently rendered graph.
@@ -526,6 +553,4 @@ class GraphRenderer {
             Plotly.relayout(c, {width: w, height: h});
         }
     }
-
-
 }

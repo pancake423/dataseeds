@@ -170,9 +170,14 @@ function addGraph(parent, x, y, type, title, subtitle, xlabel, ylabel, footer) {
                 labels: x,
                 values: y,
                 type: "pie",
-                marker: {colors: COLOR_LIST.slice(COLOR_INDEX, COLOR_LIST.length).push(COLOR_LIST.slice(0, COLOR_INDEX))}
+                marker: {colors: COLOR_LIST.map((v, i) => COLOR_LIST[(COLOR_INDEX + i) % COLOR_LIST.length])},
+                rotation: 180,
+                sort: false
             }];
+            console.log(COLOR_INDEX);
             COLOR_INDEX = (COLOR_INDEX + x.length) % COLOR_LIST.length;
+            console.log(COLOR_INDEX);
+            console.log(data);
             break;
         default:
             if (type === "table") break;

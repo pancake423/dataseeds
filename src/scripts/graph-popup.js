@@ -373,6 +373,14 @@ class PopupPlot {
                 return false;
             }
         }
+        //edge case: 2 variables for scatter plot or table need to have the same filter or the data will be nonsense.
+        console.log(this.#type.value, this.#variableList.length);
+        if ((this.#type.value === "scatter" || this.#type.value === "table") && this.#variableList.length === 2) {
+            if (JSON.stringify(this.#variableList[0].getData().filter) !== JSON.stringify(this.#variableList[1].getData().filter)) {
+                customAlert(`${this.#type.value === "pie" ? "Pie charts" : "Tables"} of two variables must have the same filter on each variable.`);
+                return false;
+            }
+        }
         return true;
     }
     /**

@@ -1,0 +1,57 @@
+:root {
+    --background-color: #f5f0f0;
+    --page-margin: 3em;
+}
+#graph-parent {
+    background-color: white;
+}
+body {
+    margin: 0;
+    background-color: var(--background-color);
+    font-family: "Verdana";
+}
+@page {
+    size: A4 landscape;
+    margin: 0;
+    margin-top: 1cm;
+}
+#graph-parent {
+    position: absolute;
+    width: calc(100vw - var(--page-margin) * 2);
+    height: calc(100vh - var(--page-margin) * 2);
+    left: var(--page-margin);
+    top: var(--page-margin);
+}
+
+#graph-parent-print {
+    position: absolute;
+    left: 1cm;
+    top: 0;
+    width: 28cm;
+    height: 20cm;
+}
+#blocker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--background-color);
+}
+/*
+I can't decide if this is genius or a mental illness. I have a container with the print-sized graph drawn in it, then a 'blocker' that covers the whole screen, then the screen-sized graph on top. To display a printable page, I just hide the blocker and screen-sized graph.
+*/
+@media print {
+    #graph-parent {
+        display: none;
+    }
+    #blocker {
+        display: none;
+    }
+    #graph-parent-print {
+        display: block;
+    }
+    body {
+        background-color: white;
+    }
+}

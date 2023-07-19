@@ -113,6 +113,7 @@ function calculateHistogramColumn(DF, convTable) {
         }
         if(!found) outCol.push('');
     }
+    for (let i = 0; i < outCol.length; i++) {if (outCol[i] === undefined) outCol[i] = ""}
     return outCol;
 }
 /**
@@ -138,6 +139,7 @@ function calculateCombineColumn(DF, convTable) {
         }
         outCol.push(outItem);
     }
+    for (let i = 0; i < outCol.length; i++) {if (outCol[i] === undefined) outCol[i] = ""}
     return outCol;
 }
 /**
@@ -166,6 +168,7 @@ function calculateMergeColumn(DF, convTable) {
             }
         }
     }
+    for (let i = 0; i < outCol.length; i++) {if (outCol[i] === undefined) outCol[i] = ""}
     return outCol;
 }
 /**

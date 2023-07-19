@@ -40,8 +40,8 @@ function generateReportObject(DF, CODEBOOK, REPORT, settings) {
         }
         // item type graph
         const valueCount = DF.valueCount(item[0]);
-        const x = Object.keys(valueCount);
-        const y = Object.values(valueCount);
+        let x = Object.keys(valueCount);
+        let y = Object.values(valueCount);
         // get codebook index
         const codebookIndex = CODEBOOK[0].findIndex((i) => i === item[0]);
         //apply codeboook
@@ -69,7 +69,6 @@ function generateReportObject(DF, CODEBOOK, REPORT, settings) {
                 }
                 break;
             case "convert":
-                console.log(CODEBOOK[2][codebookIndex]);
                 for (let i = 0; i < x.length; i++) {
                     if (x[i] in CODEBOOK[2][codebookIndex]) {
                         x[i] = CODEBOOK[2][codebookIndex][x[i]];
@@ -103,6 +102,27 @@ function generateReportObject(DF, CODEBOOK, REPORT, settings) {
                 }
             }
         }
+        // sorting of x and y should happen here
+        let d = x.map((v, i) => {return {x: x[i], y: y[i]}});
+        const sortByX = true;
+        d.sort((a, b) => {
+            const va = sortByX ? a.x : a.y;
+            const vb = sortByX ? b.x : b.y;
+            const na = !Number.isNaN(Number(va));
+            const nb = !Number.isNaN(Number(vb));
+            if (na && !nb) return -1;
+            if (!na && nb) return 1;
+            if (na && nb) {
+                return Number(va) - Number(vb);
+            }
+            if (!na && !nb) {
+                if (va < vb) return -1;
+                if (va < vb) return 1;
+            }
+            return 0;
+        });
+        [x, y] = [d.map((v) => v.x), d.map((v) => v.y)]
+
         if (settings.footer) {
             // remove <blank> and <out of range> from data set
             // new footer text

@@ -147,9 +147,11 @@ function saveGraphData() {
  * loads data from GRAPH_DATA (underlying state representation) into GRAPH_LIST (visual representation)
  */
 function loadGraphData() {
-    if (GRAPH_LIST === undefined) return
+    if (GRAPH_LIST === undefined) return;
     // check if graphs already loaded, prevents the popup from being closed when you switch tabs.
-    if (JSON.stringify(GRAPH_LIST.getAllData()) === JSON.stringify(GRAPH_DATA)) return;
+    const gl = GRAPH_LIST.getAllData();
+    if (gl[gl.length - 1] === "unset") gl.pop(); // if the user is currently creating a graph, it will be the last item and shouldn't be included in loaded checks.
+    if (JSON.stringify(gl) === JSON.stringify(GRAPH_DATA)) return;
 
     GRAPH_LIST.clear();
     if (GRAPH_DATA.length === 0) return;
@@ -160,4 +162,8 @@ function loadGraphData() {
     }
     //hide edit prompt since it opens itself every time an item is added :)
     gPopupCancel(0)
+}
+
+function graphPopoutButton() {
+    GRAPH_RENDERER.popout();
 }
