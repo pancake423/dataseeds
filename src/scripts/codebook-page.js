@@ -96,6 +96,7 @@ function cItemDeleted(list, index, deletedItem) {
     }
     // add to datalist
     document.getElementById('c-add-datalist').innerHTML += `<option>${deletedItem.selfText.innerText}</option>`;
+    if (list.getSelected() === -1) document.getElementById("c-var-info").className = "c-column invisible"; //hide datalist if selected item was deleted
     setUnsavedChanges();
 }
 /**
