@@ -46,10 +46,7 @@ class GraphRenderer {
         // filter DF
         // extract column
         // name column
-        let filteredDF = DF;
-        for (const f of varInfo.filter) {
-            filteredDF = DF.filter(...f);
-        }
+        let filteredDF = DataFilter.applyFilter(DF, varInfo.filter);
         let col = filteredDF.getColumn(varInfo.source);
         //apply codebook to column
         const codebookIndex = CODEBOOK[0].findIndex((i) => i === varInfo.source);

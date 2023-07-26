@@ -57,7 +57,7 @@ function gItemDeleted(list, index) {
 }
 
 /**
- * UNDER CONSTRUCTION: COMING SOON :)
+ * shows a graph preview.
  * @param {CustomList} list 
  * @param {int} index 
  */
@@ -68,7 +68,7 @@ function gItemSelected(list, index) {
     GRAPH_RENDERER.render(GRAPH_DATA[index], joinedDF, CODEBOOK);
 }
 /**
- * UNDER CONSTRUCTION: COMING SOON :)
+ * hides the graph preview.
  * @param {CustomList} list 
  * @param {int} index 
  */

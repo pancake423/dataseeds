@@ -50,7 +50,7 @@ function generateReportObject(DF, CODEBOOK, REPORT, settings) {
                 break;
             case "range":
                 for (let i = 0; i < x.length; i++) {
-                    if (Number(x[i]) < Number(CODEBOOK[2][codebookIndex]["min"]) || Number(x[i]) > Number(CODEBOOK[2][codebookIndex]["max"])) {
+                    if (Number.isNaN(Number(x[i])) || Number(x[i]) < Number(CODEBOOK[2][codebookIndex]["min"]) || Number(x[i]) > Number(CODEBOOK[2][codebookIndex]["max"])) {
                         if (settings.range) {
                             if (x.includes(settings.rangeValue)) {
                                 y[x.findIndex((v) => v === settings.rangeValue)] += y[i];
